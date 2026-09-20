@@ -1,0 +1,349 @@
+{
+  "$id": "https://securium.invalid/schemas/patch-apply-evidence-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "PASS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "candidate": {
+            "$ref": "#/$defs/revision"
+          },
+          "execution": {
+            "properties": {
+              "failed_patch": {
+                "type": "null"
+              },
+              "failure_class": {
+                "type": "null"
+              },
+              "integration_tree_status": {
+                "const": "COMPLETE"
+              }
+            }
+          },
+          "source_identity": {
+            "$ref": "#/$defs/syntheticSource"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "FAIL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "execution": {
+            "properties": {
+              "failure_class": {
+                "$ref": "#/$defs/failureClass"
+              },
+              "integration_tree_status": {
+                "enum": [
+                  "NOT_CREATED",
+                  "FAILED"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "candidate": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/revision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "engine_validation": {
+      "const": "SYNTHETIC_FIXTURE_ONLY"
+    },
+    "execution": {
+      "$ref": "#/$defs/execution"
+    },
+    "inputs": {
+      "$ref": "#/$defs/inputs"
+    },
+    "repair_bundle": {
+      "oneOf": [
+        {
+          "const": "repair-bundle.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "result": {
+      "enum": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_identity": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/syntheticSource"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stage": {
+      "const": "PATCH-APPLY"
+    },
+    "synthetic": {
+      "const": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "stage",
+    "result",
+    "synthetic",
+    "engine_validation",
+    "candidate",
+    "source_identity",
+    "inputs",
+    "execution",
+    "repair_bundle"
+  ],
+  "title": "Securium synthetic patch-application evidence",
+  "type": "object",
+  "$defs": {
+    "downstreamFile": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "path",
+        "sha256"
+      ],
+      "type": "object"
+    },
+    "execution": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "applied_patches": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "attempted_patches": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "diagnostics": {
+          "type": "string"
+        },
+        "failed_patch": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "failure_class": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/failureClass"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "integration_tree_status": {
+          "enum": [
+            "NOT_CREATED",
+            "PREPARED",
+            "FAILED",
+            "COMPLETE"
+          ]
+        }
+      },
+      "required": [
+        "applied_patches",
+        "attempted_patches",
+        "failed_patch",
+        "failure_class",
+        "diagnostics",
+        "affected_paths",
+        "integration_tree_status"
+      ],
+      "type": "object"
+    },
+    "failureClass": {
+      "enum": [
+        "INVALID_REQUEST",
+        "INVALID_SOURCE",
+        "INVALID_WORKSPACE",
+        "INVALID_SERIES",
+        "UNSAFE_PATH",
+        "MATERIALIZATION_COLLISION",
+        "MATERIALIZATION_FAILURE",
+        "PATCH_CHECK_FAILED",
+        "PATCH_APPLY_FAILED",
+        "TOOL_MISSING",
+        "EVIDENCE_WRITE_FAILED",
+        "INTERNAL_ERROR"
+      ]
+    },
+    "hashOrNull": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "inputs": {
+      "additionalProperties": false,
+      "properties": {
+        "downstream_files": {
+          "items": {
+            "$ref": "#/$defs/downstreamFile"
+          },
+          "type": "array"
+        },
+        "git_version": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "patch_series_sha256": {
+          "$ref": "#/$defs/hashOrNull"
+        },
+        "patches": {
+          "items": {
+            "$ref": "#/$defs/patch"
+          },
+          "type": "array"
+        },
+        "qualification_request_sha256": {
+          "$ref": "#/$defs/hashOrNull"
+        }
+      },
+      "required": [
+        "qualification_request_sha256",
+        "patch_series_sha256",
+        "patches",
+        "downstream_files",
+        "git_version"
+      ],
+      "type": "object"
+    },
+    "patch": {
+      "additionalProperties": false,
+      "properties": {
+        "affected_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "name",
+        "sha256",
+        "affected_paths"
+      ],
+      "type": "object"
+    },
+    "revision": {
+      "additionalProperties": false,
+      "properties": {
+        "chrome_version": {
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        },
+        "chromium_sha": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chrome_version",
+        "chromium_sha"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "syntheticSource": {
+      "additionalProperties": false,
+      "properties": {
+        "fixture_id": {
+          "type": "string"
+        },
+        "kind": {
+          "const": "synthetic_fixture"
+        },
+        "tree_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "kind",
+        "fixture_id",
+        "tree_sha256"
+      ],
+      "type": "object"
+    }
+  }
+}

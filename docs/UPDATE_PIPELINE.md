@@ -10,9 +10,10 @@ source integration and all qualification and release phases remain future work.
    only an unqualified candidate through an atomic replacement.
 3. **Sync a persistent Chromium checkout (future).** Obtain the exact source
    efficiently and verify checkout identity.
-4. **Apply the downstream delta (future).** Create a disposable integration
-   tree, inject downstream source deterministically, and apply `patches/series`
-   in order.
+4. **Apply the downstream delta (engine validated synthetically; real gate
+   future).** Create a disposable integration tree, materialize `src/chromium/`
+   deterministically, and apply `patches/series` in order. Current PASS evidence
+   is always marked synthetic and cannot qualify a candidate.
 5. **Compile (future).** Use real target build machines and retained
    configurations.
 6. **Run compatibility and security qualification (future).** Execute defined
@@ -53,3 +54,8 @@ repair evidence belongs under an ignored
 artifact store. It may contain failed patches, `.rej` files, upstream diffs,
 affected source snapshots, compile logs, and test logs. That collection is not
 implemented by the detector.
+
+The synthetic engine now emits the bounded patch-failure portion of this future
+repair input: request, ordered and applied patches, failed patch and hash,
+affected paths, Git diagnostics, and evidence. Real-worker old/new upstream
+files, upstream diffs, compile logs, and test logs remain future additions.

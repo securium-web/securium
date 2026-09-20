@@ -31,3 +31,14 @@ jobs:
         run: >-
           python scripts/chromium_update.py check --json
           --offline-fixture tests/fixtures/chromiumdash/valid-stable-windows.json
+
+      - name: Run synthetic patch engine fixture
+        run: >-
+          python scripts/patch_qualify.py
+          --request tests/fixtures/patch-engine/requests/valid.json
+          --source tests/fixtures/patch-engine/sources/base
+          --repository-root tests/fixtures/patch-engine/repositories/success
+          --workspace artifacts/synthetic-patch-validation
+          --source-kind synthetic-fixture
+          --fixture-id github-static-validation
+          --json

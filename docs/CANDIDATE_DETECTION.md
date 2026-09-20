@@ -99,6 +99,11 @@ For `NEW_CANDIDATE`, JSON output includes a `qualification_request` conforming
 to `state/qualification-request.schema.json`. It is a request for future work,
 not qualification evidence.
 
+The synthetic patch engine consumes this exact contract and rejects unsupported
+versions, unknown fields, malformed versions, and invalid SHAs. Consumption of
+the request authorizes only a disposable synthetic run; it does not authorize a
+write to candidate, qualified, or released state.
+
 ## Atomicity and authority
 
 Before a write, the detector re-reads state to detect concurrent changes,

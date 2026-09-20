@@ -63,6 +63,10 @@ class StateWriteError(UpdateError):
     """A candidate state update could not be completed atomically."""
 
 
+class QualificationRequestError(UpdateError):
+    """A qualification request does not match the versioned contract."""
+
+
 class Decision(str, Enum):
     NoChange = "NO_CHANGE"
     NewCandidate = "NEW_CANDIDATE"
@@ -319,6 +323,63 @@ def ValidateProjectState(State: Any) -> None:
         ValidateTimestamp(ReleasedRecord.get("released_at"), "state.released.released_at")
 
 
+def ValidateQualificationRequest(RequestData: Any) -> None:
+    if not isinstance(RequestData, dict):
+        raise QualificationRequestError("qualification request must be a JSON object")
+    ExpectedKeys = {"schema_version", "previous_qualified", "candidate"}
+    ActualKeys = set(RequestData)
+    MissingKeys = sorted(ExpectedKeys - ActualKeys)
+    ExtraKeys = sorted(ActualKeys - ExpectedKeys)
+    if MissingKeys:
+        raise QualificationRequestError(
+            f"qualification request is missing keys: {', '.join(MissingKeys)}"
+        )
+    if ExtraKeys:
+        raise QualificationRequestError(
+            f"qualification request has unsupported keys: {', '.join(ExtraKeys)}"
+        )
+    if RequestData.get("schema_version") != SchemaVersion:
+        raise QualificationRequestError(
+            f"unsupported qualification request schema_version "
+            f"{RequestData.get('schema_version')!r}; expected {SchemaVersion}"
+        )
+
+    for Name in ("candidate", "previous_qualified"):
+        Revision = RequestData.get(Name)
+        if Name == "previous_qualified" and Revision is None:
+            continue
+        if not isinstance(Revision, dict):
+            raise QualificationRequestError(
+                f"qualification request {Name} must be an object"
+            )
+        RevisionKeys = set(Revision)
+        ExpectedRevisionKeys = {"chrome_version", "chromium_sha"}
+        MissingRevisionKeys = sorted(ExpectedRevisionKeys - RevisionKeys)
+        ExtraRevisionKeys = sorted(RevisionKeys - ExpectedRevisionKeys)
+        if MissingRevisionKeys:
+            raise QualificationRequestError(
+                f"qualification request {Name} is missing keys: "
+                f"{', '.join(MissingRevisionKeys)}"
+            )
+        if ExtraRevisionKeys:
+            raise QualificationRequestError(
+                f"qualification request {Name} has unsupported keys: "
+                f"{', '.join(ExtraRevisionKeys)}"
+            )
+        try:
+            ParseVersion(
+                Revision.get("chrome_version"),
+                f"qualification request {Name}.chrome_version",
+            )
+        except UpstreamDataError as Error:
+            raise QualificationRequestError(str(Error)) from Error
+        ValidateSha(
+            Revision.get("chromium_sha"),
+            f"qualification request {Name}.chromium_sha",
+            QualificationRequestError,
+        )
+
+
 def LoadProjectState(StatePath: Path) -> Dict[str, Any]:
     try:
         RawState = StatePath.read_text(encoding="utf-8")
@@ -478,7 +539,7 @@ def BuildQualificationRequest(
             "chrome_version": Qualified["chrome_version"],
             "chromium_sha": Qualified["chromium_sha"],
         }
-    return {
+    RequestData = {
         "schema_version": SchemaVersion,
         "previous_qualified": PreviousQualified,
         "candidate": {
@@ -486,6 +547,8 @@ def BuildQualificationRequest(
             "chromium_sha": CandidateValue.ChromiumSha,
         },
     }
+    ValidateQualificationRequest(RequestData)
+    return RequestData
 
 
 def BuildReport(

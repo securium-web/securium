@@ -26,3 +26,11 @@ Any patch failure is a qualification failure until resolved against the exact
 target SHA. Application success establishes syntax and context compatibility
 only; it does not establish compilation, runtime behavior, security equivalence,
 or release suitability.
+
+The patch engine uses `git apply --check` immediately before each ordered
+`git apply`, with strict whitespace checking and without `--3way`, `--reject`,
+or `--unsafe-paths`. This permits raw Git diffs and `git format-patch` output
+without creating commits. Each patch sees prior patches' results; failure stops
+the series and no later patch is attempted. Binary patches, symlink patches,
+unsafe paths, malformed headers, unlisted patches, and non-contiguous series
+numbering are rejected.

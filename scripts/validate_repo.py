@@ -14,6 +14,7 @@ if str(ScriptDirectory) not in sys.path:
     sys.path.insert(0, str(ScriptDirectory))
 
 from chromium_update import StateValidationError, ValidateProjectState  # noqa: E402
+from patch_qualify import EnumerateSafeTree, StageFailure  # noqa: E402
 
 
 RequiredFiles = (
@@ -27,6 +28,7 @@ RequiredFiles = (
     "tests/integration/README.md",
     "tests/security/README.md",
     "tests/static/test_chromium_update.py",
+    "tests/static/test_patch_qualify.py",
     "tests/fixtures/chromiumdash/valid-stable-windows.json",
     "tests/fixtures/chromiumdash/malformed.json",
     "tests/fixtures/chromiumdash/missing-version.json",
@@ -36,14 +38,38 @@ RequiredFiles = (
     "tests/fixtures/chromiumdash/wrong-platform.json",
     "tests/fixtures/chromiumdash/ambiguous.json",
     "tests/fixtures/chromiumdash/unexpected-envelope.json",
+    "tests/fixtures/patch-engine/requests/valid.json",
+    "tests/fixtures/patch-engine/requests/malformed.json",
+    "tests/fixtures/patch-engine/requests/invalid-sha.json",
+    "tests/fixtures/patch-engine/requests/unsupported-schema.json",
+    "tests/fixtures/patch-engine/sources/base/browser/profile.cc",
+    "tests/fixtures/patch-engine/sources/mismatch/browser/profile.cc",
+    "tests/fixtures/patch-engine/repositories/empty/patches/series",
+    "tests/fixtures/patch-engine/repositories/success/patches/series",
+    "tests/fixtures/patch-engine/repositories/success/patches/0001-profile-stage-one.patch",
+    "tests/fixtures/patch-engine/repositories/success/patches/0002-profile-stage-two.patch",
+    "tests/fixtures/patch-engine/repositories/success/src/chromium/securium/owned.cc",
+    "tests/fixtures/patch-engine/repositories/success/src/chromium/securium/config/defaults.json",
+    "tests/fixtures/patch-engine/repositories/failure/patches/series",
+    "tests/fixtures/patch-engine/repositories/failure/patches/0001-profile-stage-one.patch",
+    "tests/fixtures/patch-engine/repositories/failure/patches/0002-profile-context-failure.patch",
+    "tests/fixtures/patch-engine/repositories/failure/patches/0003-must-not-run.patch",
+    "tests/fixtures/patch-engine/repositories/collision/patches/series",
+    "tests/fixtures/patch-engine/repositories/collision/src/chromium/browser/profile.cc",
+    "tests/fixtures/patch-engine/repositories/malformed/patches/series",
+    "tests/fixtures/patch-engine/repositories/malformed/patches/0001-malformed.patch",
+    "tests/fixtures/patch-engine/repositories/unsafe-series/patches/series",
     "scripts/README.md",
     "scripts/chromium_update.py",
+    "scripts/patch_qualify.py",
     "state/README.md",
     "state/upstream.example.json",
     "state/upstream.json",
     "state/qualification-request.schema.json",
+    "state/patch-apply-evidence.schema.json",
     "docs/ARCHITECTURE.md",
     "docs/CANDIDATE_DETECTION.md",
+    "docs/PATCH_QUALIFICATION.md",
     "docs/SECURITY_MODEL.md",
     "docs/UPSTREAM_POLICY.md",
     "docs/PATCH_POLICY.md",
@@ -138,7 +164,32 @@ def ValidateState(Root: Path, Errors: List[str]) -> int:
                 ValidateProjectState(Data)
             except StateValidationError as Error:
                 Errors.append(f"invalid project state in {JsonPath.relative_to(Root)}: {Error}")
+        if JsonPath.name == "patch-apply-evidence.schema.json":
+            Properties = Data.get("properties", {})
+            if Properties.get("synthetic", {}).get("const") is not True:
+                Errors.append("patch evidence schema must require synthetic: true")
+            if Properties.get("stage", {}).get("const") != "PATCH-APPLY":
+                Errors.append("patch evidence schema must require the PATCH-APPLY stage")
+            if (
+                Properties.get("engine_validation", {}).get("const")
+                != "SYNTHETIC_FIXTURE_ONLY"
+            ):
+                Errors.append(
+                    "patch evidence schema must distinguish synthetic engine validation"
+                )
     return len(JsonPaths)
+
+
+def ValidateDownstreamSource(Root: Path, Errors: List[str]) -> int:
+    DownstreamRoot = Root / "src" / "chromium"
+    if not DownstreamRoot.exists():
+        return 0
+    try:
+        Files, _ = EnumerateSafeTree(DownstreamRoot, "downstream source")
+    except StageFailure as Error:
+        Errors.append(f"invalid downstream source tree: {Error}")
+        return 0
+    return len(Files)
 
 
 def ValidateRequiredFiles(Root: Path, Errors: List[str]) -> None:
@@ -169,10 +220,12 @@ def Main(Arguments: Iterable[str] = ()) -> int:
     ValidateRequiredFiles(Root, Errors)
     PatchCount = ValidatePatches(Root, Errors)
     JsonCount = ValidateState(Root, Errors)
+    DownstreamFileCount = ValidateDownstreamSource(Root, Errors)
 
     print(f"Validated repository: {Root}")
     print(f"Ordered patches: {PatchCount}")
     print(f"State JSON files: {JsonCount}")
+    print(f"Downstream source files: {DownstreamFileCount}")
     print(f"Required files checked: {len(RequiredFiles)}")
     if Errors:
         print(f"STATIC validation failed with {len(Errors)} error(s):")

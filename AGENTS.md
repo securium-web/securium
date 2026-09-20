@@ -84,6 +84,13 @@ the sole authority for `released`. A new Chromium SHA requires qualification.
 Failure to contact or understand upstream must preserve all local state, and an
 unchanged SHA must not refresh timestamps or otherwise mutate candidate state.
 
+Synthetic patch-engine success validates tooling only. It must never promote a
+candidate, populate `qualified` or `released`, or be described as real Chromium
+`PATCH-APPLY` evidence. Real `PATCH-APPLY` requires an exact Chromium checkout
+whose Git identity is verified against the candidate SHA. Downstream-owned files
+may materialize only from `src/chromium/` into the same relative integration-tree
+path; collisions and unsafe paths fail closed.
+
 ## Codex update repair
 
 Before repairing a Chromium update, read `docs/ARCHITECTURE.md`,

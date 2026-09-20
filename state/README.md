@@ -48,3 +48,9 @@ state in place. Candidate replacement copies and verifies `qualified` and
 future builder: schema version, previous qualified version/SHA or null, and the
 new candidate version/SHA. It intentionally contains no build or security
 evidence. See `docs/CANDIDATE_DETECTION.md` for CLI and decision semantics.
+
+`patch-apply-evidence.schema.json` defines synthetic patch-engine evidence. Its
+`synthetic: true` and `engine_validation: SYNTHETIC_FIXTURE_ONLY` constants are
+deliberate safeguards: this repository cannot emit real Chromium PATCH-APPLY
+qualification. Patch evidence is generated under disposable workspaces and is
+not canonical promotion state.

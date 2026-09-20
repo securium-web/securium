@@ -19,3 +19,8 @@ Prefer one conceptual concern per patch. Put substantial implementation in
 whole Chromium implementations. An unlisted `.patch` file is an error, patch
 failure is a qualification failure, and clean application is not proof of
 semantic correctness.
+
+The engine validates every listed patch before preparing a result, applies
+exactly in series order, and stops at the first failed `git apply --check` or
+`git apply`. It never skips, reorders, regenerates, or invokes Codex. Synthetic
+fixture success is engine validation only.

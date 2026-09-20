@@ -23,7 +23,9 @@ compromise, and compromised update infrastructure are separate threat classes.
 This repository is the canonical downstream delta, not a Chromium source tree.
 It owns the ordered patch series, downstream source, maintenance policy,
 tracking state, Stable candidate detection, static checks, and placeholders for
-later build, test, qualification, and release automation.
+later build, test, qualification, and release automation. It also contains a
+synthetic-fixture engine that validates future downstream materialization and
+patch-application mechanics without qualifying Chromium.
 
 The maintenance equation is:
 
@@ -51,10 +53,13 @@ Chromium Stable release detected
 record unqualified candidate
         |
         v
-sync exact upstream SHA
+qualification request
         |
         v
-apply ordered patch series
+sync exact upstream SHA (future real worker)
+        |
+        v
+materialize downstream files + apply ordered patches
         |
         v
 compile
@@ -69,10 +74,11 @@ package/sign
 publish signed update
 ```
 
-Candidate detection and repository-level static validation exist today. Source
-sync and every later stage in the diagram are future work and must produce their
-own evidence before the associated qualification label can be used. Detection
-never implies qualification.
+Candidate detection, repository-level static validation, and synthetic patch
+engine validation exist today. Real Chromium source sync and every real
+qualification stage remain future work. Synthetic PASS evidence proves only
+that the engine behaved correctly against invented fixtures. Detection and
+synthetic execution never imply Chromium qualification.
 
 Future Codex automation may assist when a patch stops applying, an upstream
 refactor breaks compilation, or qualification tests fail. Codex is an assistant
@@ -84,9 +90,10 @@ security release safe.
 - `patches/`: authoritative ordered Chromium patch series.
 - `src/`: substantial downstream-owned source material.
 - `state/`: separate candidate, qualified, and released revision state.
-- `scripts/`: deterministic repository tooling and Stable candidate detection.
-- `tests/`: static and offline detector checks now; integration and security
-  gates later.
+- `scripts/`: deterministic repository tooling, candidate detection, and the
+  synthetic patch engine.
+- `tests/`: static, detector, and synthetic patch-engine checks now; real
+  integration and security gates later.
 - `docs/`: architecture, security, upstream, candidate, patch, update, and
   qualification policy.
 - `build/`, `updater/`, and `release/`: documented future boundaries.
@@ -97,6 +104,7 @@ Run the currently supported gate with:
 python scripts/validate_repo.py
 python -m unittest discover -s tests/static -p "test_*.py"
 python scripts/chromium_update.py check --offline-fixture tests/fixtures/chromiumdash/valid-stable-windows.json
+python scripts/patch_qualify.py --request tests/fixtures/patch-engine/requests/valid.json --source tests/fixtures/patch-engine/sources/base --repository-root tests/fixtures/patch-engine/repositories/success --workspace artifacts/local-synthetic-check --source-kind synthetic-fixture --fixture-id local-check
 ```
 
 The first two commands are the required offline `STATIC` gate. The third
@@ -104,6 +112,8 @@ demonstrates a read-only offline candidate check. A live read-only check uses
 `python scripts/chromium_update.py check`; add `--json` for automation. Candidate
 state changes require the explicit `--write-candidate` option. See
 `docs/CANDIDATE_DETECTION.md` for decisions and authority boundaries.
+The final command creates explicitly synthetic evidence and must use a new,
+disposable workspace. See `docs/PATCH_QUALIFICATION.md`.
 
 ## Licensing boundary
 

@@ -11,10 +11,15 @@ delta; it is generated, disposable, and must never become the source of truth.
 ```text
 ChromiumDash --> detector --> candidate (UNQUALIFIED)
                                   |
+                                  v
+                         qualification request
+                                  |
 canonical patch repository -------+
   patches + src + policy + tests  |
                                   v
                        temporary integration tree
+                                  |
+                    materialize + apply patches
                                   |
                                   v
                             build machines
@@ -75,6 +80,8 @@ approval, signing, and publishing are separate authorities. Codex must not sign
 or publish and must stop when upstream invalidates the approved security model.
 
 Steps 1 and 2 now exist as a static/control-plane component. Build machines,
-Chromium integration, qualification, signing, and publication remain future
-work. `docs/CANDIDATE_DETECTION.md` defines the implemented API, decision, and
-failure semantics.
+real Chromium integration, qualification, signing, and publication remain
+future work. The materialization and patch engine is validated only with
+synthetic source trees; it cannot write canonical state. `docs/PATCH_QUALIFICATION.md`
+defines its boundary, while `docs/CANDIDATE_DETECTION.md` defines candidate
+detection.

@@ -10,13 +10,19 @@ Repository consistency, required-file presence, patch-series metadata, patch
 shape, candidate/state schema checks, and offline detector tests pass without a
 Chromium checkout. Required pull-request validation uses committed fixtures and
 does not depend on ChromiumDash availability. A successful optional live lookup
-is still only `STATIC` metadata evidence.
+is still only `STATIC` metadata evidence. Synthetic materialization and patch
+engine tests also remain `STATIC`: they validate machinery, not a Chromium
+candidate.
 
 ## PATCH-APPLY
 
 All downstream-owned files are integrated deterministically and every ordered
 patch applies cleanly to the exact target Chromium SHA in a clean tree. Rejects
 or fuzz outside approved policy fail the gate.
+
+This level requires a real Chromium Git checkout with actual HEAD verified
+against the qualification request. Evidence with `synthetic: true` or
+`engine_validation: SYNTHETIC_FIXTURE_ONLY` cannot satisfy this level.
 
 ## COMPILE
 

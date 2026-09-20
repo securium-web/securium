@@ -1,0 +1,8 @@
+{
+  "candidate": {
+    "chrome_version": "123.0.6312.86",
+    "chromium_sha": "invalid"
+  },
+  "previous_qualified": null,
+  "schema_version": 1
+}

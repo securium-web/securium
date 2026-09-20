@@ -37,6 +37,18 @@ class ValidatorTests(unittest.TestCase):
         (Root / "state" / "qualification-request.schema.json").write_text(
             json.dumps({"type": "object"}), encoding="utf-8"
         )
+        (Root / "state" / "patch-apply-evidence.schema.json").write_text(
+            json.dumps(
+                {
+                    "properties": {
+                        "synthetic": {"const": True},
+                        "stage": {"const": "PATCH-APPLY"},
+                        "engine_validation": {"const": "SYNTHETIC_FIXTURE_ONLY"},
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
 
     def RunValidator(self, Root: Path):
         Output = io.StringIO()
@@ -143,6 +155,27 @@ class ValidatorTests(unittest.TestCase):
 
         self.assertEqual(1, ExitCode)
         self.assertIn("unsupported project state schema_version", Output)
+
+    def test_patch_evidence_schema_must_remain_synthetic_only(self):
+        with tempfile.TemporaryDirectory() as TempDirectory:
+            Root = Path(TempDirectory)
+            self.CreateRepository(Root)
+            (Root / "state" / "patch-apply-evidence.schema.json").write_text(
+                json.dumps(
+                    {
+                        "properties": {
+                            "synthetic": {"const": False},
+                            "stage": {"const": "PATCH-APPLY"},
+                            "engine_validation": {"const": "SYNTHETIC_FIXTURE_ONLY"},
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            ExitCode, Output = self.RunValidator(Root)
+
+        self.assertEqual(1, ExitCode)
+        self.assertIn("synthetic: true", Output)
 
 
 if __name__ == "__main__":

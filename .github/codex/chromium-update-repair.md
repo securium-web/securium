@@ -7,6 +7,10 @@ Expected inputs may include the previous and new Chromium SHAs, the failed
 patch, `.rej` files, the relevant upstream diff and source files, and complete
 build/test logs.
 
+When available, begin with the bounded `repair-bundle.json` emitted by the patch
+engine. Synthetic bundles are diagnostic fixtures only and do not establish
+that the failure occurred against Chromium.
+
 1. Read `AGENTS.md` completely.
 2. Read `docs/ARCHITECTURE.md`, `docs/SECURITY_MODEL.md`,
    `docs/UPSTREAM_POLICY.md`, `docs/PATCH_POLICY.md`,
