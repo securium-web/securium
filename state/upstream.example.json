@@ -1,0 +1,27 @@
+{
+  "candidate": {
+    "channel": "Stable",
+    "chrome_version": "123.0.6312.86",
+    "chromium_sha": "0123456789abcdef0123456789abcdef01234567",
+    "detected_at": "2026-01-02T03:04:05Z",
+    "platform": "Windows",
+    "qualification": "UNQUALIFIED"
+  },
+  "qualified": {
+    "channel": "Stable",
+    "chrome_version": "122.0.6261.128",
+    "chromium_sha": "1111111111111111111111111111111111111111",
+    "platform": "Windows",
+    "qualification_level": "PATCH-APPLY",
+    "qualified_at": "2026-01-01T03:04:05Z"
+  },
+  "released": {
+    "channel": "Stable",
+    "chrome_version": "121.0.6167.184",
+    "chromium_sha": "2222222222222222222222222222222222222222",
+    "platform": "Windows",
+    "release_version": "0.0.1-example",
+    "released_at": "2025-12-01T03:04:05Z"
+  },
+  "schema_version": 1
+}

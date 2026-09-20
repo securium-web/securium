@@ -1,0 +1,10 @@
+[
+  {
+    "channel": "Stable",
+    "hashes": {
+      "chromium": "not-a-git-sha"
+    },
+    "platform": "Windows",
+    "version": "123.0.6312.86"
+  }
+]

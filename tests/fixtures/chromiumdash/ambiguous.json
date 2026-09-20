@@ -1,0 +1,18 @@
+[
+  {
+    "channel": "Stable",
+    "hashes": {
+      "chromium": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "platform": "Windows",
+    "version": "123.0.6312.86"
+  },
+  {
+    "channel": "Stable",
+    "hashes": {
+      "chromium": "1111111111111111111111111111111111111111"
+    },
+    "platform": "Windows",
+    "version": "123.0.6312.86"
+  }
+]

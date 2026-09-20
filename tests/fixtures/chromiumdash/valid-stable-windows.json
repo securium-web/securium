@@ -1,0 +1,14 @@
+[
+  {
+    "channel": "Stable",
+    "chromium_main_branch_position": 1234567,
+    "hashes": {
+      "chromium": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "milestone": 123,
+    "platform": "Windows",
+    "previous_version": "123.0.6312.85",
+    "time": 1710000000000,
+    "version": "123.0.6312.86"
+  }
+]

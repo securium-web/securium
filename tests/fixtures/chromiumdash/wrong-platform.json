@@ -1,0 +1,10 @@
+[
+  {
+    "channel": "Stable",
+    "hashes": {
+      "chromium": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "platform": "Linux",
+    "version": "123.0.6312.86"
+  }
+]

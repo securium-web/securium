@@ -1,0 +1,10 @@
+[
+  {
+    "channel": "Beta",
+    "hashes": {
+      "chromium": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "platform": "Windows",
+    "version": "124.0.6367.10"
+  }
+]

@@ -1,0 +1,33 @@
+name: Repository static validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-static-validation:
+    name: Repository static validation (not a Chromium build)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate repository structure and metadata
+        run: python scripts/validate_repo.py
+
+      - name: Run all offline static and detector tests
+        run: python -m unittest discover -s tests/static -p "test_*.py"
+
+      - name: Exercise candidate detector with an offline fixture
+        run: >-
+          python scripts/chromium_update.py check --json
+          --offline-fixture tests/fixtures/chromiumdash/valid-stable-windows.json

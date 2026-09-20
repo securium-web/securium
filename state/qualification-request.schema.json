@@ -1,0 +1,50 @@
+{
+  "$id": "https://securium.invalid/schemas/qualification-request-v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "candidate": {
+      "$ref": "#/$defs/revision"
+    },
+    "previous_qualified": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/revision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "schema_version": {
+      "const": 1
+    }
+  },
+  "required": [
+    "schema_version",
+    "previous_qualified",
+    "candidate"
+  ],
+  "title": "Securium qualification request",
+  "type": "object",
+  "$defs": {
+    "revision": {
+      "additionalProperties": false,
+      "properties": {
+        "chrome_version": {
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        },
+        "chromium_sha": {
+          "pattern": "^[0-9a-f]{40}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chrome_version",
+        "chromium_sha"
+      ],
+      "type": "object"
+    }
+  }
+}

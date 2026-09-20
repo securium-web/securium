@@ -1,0 +1,18 @@
+# Generated Python files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local environments and editor files
+.venv/
+.idea/
+.vscode/
+*.swp
+
+# Generated Chromium integration and build outputs
+out/
+integration-tree/
+artifacts/
+
+# Interrupted atomic candidate-state writes (the canonical file is tracked).
+state/.upstream.json.*.tmp
