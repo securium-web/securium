@@ -93,6 +93,19 @@ only the first plus static tooling exercised against invented evidence. The
 complete boundary, taxonomies, initial decisions, and mismatch rules are in
 `docs/NETWORK_SERVICE_POLICY.md`.
 
+## Build-policy artifact boundary
+
+`policy/build-policy.json` is the canonical intended build configuration for
+the current unbranded Windows product scope. It is a policy input, not a
+generated `args.gn`, resolved build output, or claim about Chromium support.
+
+Build policy has three distinct layers: the intended manifest, a future
+exact-SHA effective configuration resolved from real Chromium source and its
+environment, and later runtime behavior. Foundation 1A validates only the first
+layer. Foundation 1B must compare the first two and detect environment-derived
+credential overrides; runtime/network qualification remains separate. See
+`docs/BUILD_POLICY.md`.
+
 ## Update lifecycle
 
 1. Detect released Chromium Stable metadata and validate a candidate without
@@ -101,7 +114,8 @@ complete boundary, taxonomies, initial decisions, and mismatch rules are in
    as an explicitly unqualified candidate.
 3. Sync a persistent upstream checkout and create a clean integration tree.
 4. Inject downstream-owned files deterministically and apply `patches/series`.
-5. Compile on real target infrastructure.
+5. Resolve and compare the effective GN configuration with the canonical
+   build-policy manifest, then compile on real target infrastructure.
 6. Run compatibility, runtime, and security qualification gates.
 7. Review evidence and any security-semantic changes.
 8. Package, sign, and publish artifacts and cryptographically anchored updater

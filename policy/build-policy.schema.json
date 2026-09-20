@@ -1,0 +1,185 @@
+{
+  "$defs": {
+    "setting": {
+      "additionalProperties": false,
+      "properties": {
+        "classification": {
+          "enum": [
+            "EXPLICIT_DEFENSE",
+            "PRODUCT_CHOICE",
+            "REQUIRED_INVARIANT"
+          ]
+        },
+        "expected": {},
+        "name": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "related_service_ids": {
+          "items": {
+            "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "requirement": {
+          "enum": [
+            "ALLOWED_SET",
+            "EXACT_VALUE",
+            "FORBIDDEN_VALUE",
+            "REQUIRED_EMPTY_STRING"
+          ]
+        },
+        "requires_real_source_verification": {
+          "const": true
+        },
+        "stability": {
+          "enum": [
+            "INVARIANT",
+            "PREFERRED"
+          ]
+        },
+        "verification_status": {
+          "const": "PENDING_REAL_SOURCE_VERIFICATION"
+        }
+      },
+      "required": [
+        "classification",
+        "expected",
+        "name",
+        "rationale",
+        "related_service_ids",
+        "requirement",
+        "requires_real_source_verification",
+        "stability",
+        "verification_status"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/securium-web/securium/main/policy/build-policy.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "credential_policy": {
+      "additionalProperties": false,
+      "properties": {
+        "effective_environment_detection_required": {
+          "const": true
+        },
+        "global_browser_credentials": {
+          "const": "FORBIDDEN"
+        },
+        "plaintext_repository_secrets": {
+          "const": "FORBIDDEN"
+        },
+        "service_specific_credentials": {
+          "const": "EXPLICIT_RETAINED_SERVICES_ONLY"
+        },
+        "service_specific_documentation_required": {
+          "const": true
+        },
+        "service_specific_global_reuse_forbidden": {
+          "const": true
+        },
+        "service_specific_scoping_required": {
+          "const": true
+        }
+      },
+      "required": [
+        "effective_environment_detection_required",
+        "global_browser_credentials",
+        "plaintext_repository_secrets",
+        "service_specific_credentials",
+        "service_specific_documentation_required",
+        "service_specific_global_reuse_forbidden",
+        "service_specific_scoping_required"
+      ],
+      "type": "object"
+    },
+    "manifest_id": {
+      "const": "securium-build-policy"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "scope": {
+      "additionalProperties": false,
+      "properties": {
+        "build_system": {
+          "const": "GN"
+        },
+        "platforms": {
+          "items": {
+            "enum": [
+              "WINDOWS"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "product": {
+          "const": "SECURIUM_UNBRANDED_CHROMIUM"
+        }
+      },
+      "required": [
+        "build_system",
+        "platforms",
+        "product"
+      ],
+      "type": "object"
+    },
+    "settings": {
+      "items": {
+        "$ref": "#/$defs/setting"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "verification_contract": {
+      "additionalProperties": false,
+      "properties": {
+        "compare_effective_gn_values": {
+          "const": true
+        },
+        "detect_environment_credential_overrides": {
+          "const": true
+        },
+        "mismatch_result": {
+          "const": "FAIL"
+        },
+        "real_chromium_source_required": {
+          "const": true
+        },
+        "runtime_behavior_out_of_scope": {
+          "const": true
+        }
+      },
+      "required": [
+        "compare_effective_gn_values",
+        "detect_environment_credential_overrides",
+        "mismatch_result",
+        "real_chromium_source_required",
+        "runtime_behavior_out_of_scope"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "credential_policy",
+    "manifest_id",
+    "schema_version",
+    "scope",
+    "settings",
+    "verification_contract"
+  ],
+  "title": "Securium Build Policy Manifest",
+  "type": "object"
+}

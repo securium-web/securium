@@ -1,0 +1,156 @@
+{
+  "credential_policy": {
+    "effective_environment_detection_required": true,
+    "global_browser_credentials": "FORBIDDEN",
+    "plaintext_repository_secrets": "FORBIDDEN",
+    "service_specific_credentials": "EXPLICIT_RETAINED_SERVICES_ONLY",
+    "service_specific_documentation_required": true,
+    "service_specific_global_reuse_forbidden": true,
+    "service_specific_scoping_required": true
+  },
+  "manifest_id": "securium-build-policy",
+  "schema_version": 1,
+  "scope": {
+    "build_system": "GN",
+    "platforms": [
+      "WINDOWS"
+    ],
+    "product": "SECURIUM_UNBRANDED_CHROMIUM"
+  },
+  "settings": [
+    {
+      "classification": "PRODUCT_CHOICE",
+      "expected": false,
+      "name": "enable_compose",
+      "rationale": "Compose is not part of the intended Securium product baseline.",
+      "related_service_ids": [],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "PREFERRED",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "PRODUCT_CHOICE",
+      "expected": false,
+      "name": "enable_lens_desktop",
+      "rationale": "Lens desktop integration is not part of the intended Securium product baseline.",
+      "related_service_ids": [],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "PREFERRED",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "EXPLICIT_DEFENSE",
+      "expected": false,
+      "name": "enable_rlz",
+      "rationale": "RLZ integration is outside the intended unbranded Securium baseline.",
+      "related_service_ids": [],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "EXPLICIT_DEFENSE",
+      "expected": false,
+      "name": "enable_update_notifications",
+      "rationale": "Chrome browser update notifications must not imply an updater that is outside Securium's downstream update pipeline.",
+      "related_service_ids": [
+        "chrome_browser_updater"
+      ],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "EXPLICIT_DEFENSE",
+      "expected": false,
+      "name": "enable_updater",
+      "rationale": "Chrome browser self-update is outside Securium's separately qualified downstream update pipeline.",
+      "related_service_ids": [
+        "chrome_browser_updater"
+      ],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": "",
+      "name": "google_api_key",
+      "rationale": "Securium does not configure a global Google API key as a catch-all browser credential.",
+      "related_service_ids": [],
+      "requirement": "REQUIRED_EMPTY_STRING",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": "",
+      "name": "google_default_client_id",
+      "rationale": "Securium does not configure a global default Google OAuth client identifier.",
+      "related_service_ids": [],
+      "requirement": "REQUIRED_EMPTY_STRING",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": "",
+      "name": "google_default_client_secret",
+      "rationale": "Securium does not configure a global default Google OAuth client secret.",
+      "related_service_ids": [],
+      "requirement": "REQUIRED_EMPTY_STRING",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": false,
+      "name": "is_chrome_branded",
+      "rationale": "Securium is an unbranded Chromium derivative, not a Google Chrome build.",
+      "related_service_ids": [],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": 1,
+      "name": "safe_browsing_mode",
+      "rationale": "The intended baseline retains Standard Safe Browsing while deferring exact-SHA and runtime qualification.",
+      "related_service_ids": [
+        "safe_browsing_standard"
+      ],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    },
+    {
+      "classification": "REQUIRED_INVARIANT",
+      "expected": false,
+      "name": "use_official_google_api_keys",
+      "rationale": "Official Google API keys are disabled for the intended unbranded Securium baseline.",
+      "related_service_ids": [],
+      "requirement": "EXACT_VALUE",
+      "requires_real_source_verification": true,
+      "stability": "INVARIANT",
+      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
+    }
+  ],
+  "verification_contract": {
+    "compare_effective_gn_values": true,
+    "detect_environment_credential_overrides": true,
+    "mismatch_result": "FAIL",
+    "real_chromium_source_required": true,
+    "runtime_behavior_out_of_scope": true
+  }
+}

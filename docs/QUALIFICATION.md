@@ -28,6 +28,12 @@ delta rules, and mismatch logic against invented evidence. They do not prove
 that Chromium implements the policy or that a runtime emitted only allowed
 traffic.
 
+Build-policy manifest validation also remains `STATIC`. It proves only that the
+intended unbranded configuration, credential boundary, service references, and
+future verification contract are internally consistent. It does not prove that
+GN accepts a setting, that Chromium resolves the expected value, that
+environment overrides are absent, or that a browser behaves accordingly.
+
 ## PATCH-APPLY
 
 All downstream-owned files are integrated deterministically and every ordered

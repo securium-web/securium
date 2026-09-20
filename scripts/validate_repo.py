@@ -14,6 +14,12 @@ if str(ScriptDirectory) not in sys.path:
     sys.path.insert(0, str(ScriptDirectory))
 
 from chromium_update import StateValidationError, ValidateProjectState  # noqa: E402
+from build_policy import (  # noqa: E402
+    BuildPolicyValidationError,
+    LoadManifest as LoadBuildPolicy,
+    ManifestId as BuildPolicyId,
+    SchemaVersion as BuildPolicySchemaVersion,
+)
 from network_policy import (  # noqa: E402
     CanonicalJson,
     LoadPolicy,
@@ -37,6 +43,7 @@ RequiredFiles = (
     "tests/static/test_chromium_update.py",
     "tests/static/test_patch_qualify.py",
     "tests/static/test_network_policy.py",
+    "tests/static/test_build_policy.py",
     "tests/fixtures/chromiumdash/valid-stable-windows.json",
     "tests/fixtures/chromiumdash/malformed.json",
     "tests/fixtures/chromiumdash/missing-version.json",
@@ -68,12 +75,17 @@ RequiredFiles = (
     "tests/fixtures/patch-engine/repositories/malformed/patches/0001-malformed.patch",
     "tests/fixtures/patch-engine/repositories/unsafe-series/patches/series",
     "tests/fixtures/network-policy/comparison-cases.json",
+    "tests/fixtures/build-policy/cases.json",
+    "tests/fixtures/build-policy/malformed.json",
     "scripts/README.md",
+    "scripts/build_policy.py",
     "scripts/chromium_update.py",
     "scripts/network_policy.py",
     "scripts/patch_qualify.py",
     "policy/network-service-policy.json",
     "policy/network-service-policy.schema.json",
+    "policy/build-policy.json",
+    "policy/build-policy.schema.json",
     "state/README.md",
     "state/upstream.example.json",
     "state/upstream.json",
@@ -82,6 +94,7 @@ RequiredFiles = (
     "docs/ARCHITECTURE.md",
     "docs/CANDIDATE_DETECTION.md",
     "docs/PATCH_QUALIFICATION.md",
+    "docs/BUILD_POLICY.md",
     "docs/NETWORK_SERVICE_POLICY.md",
     "docs/SECURE_PROFILE_ARCHITECTURE.md",
     "docs/SECURE_PROFILE_FOUNDATION_1.md",
@@ -230,6 +243,34 @@ def ValidateNetworkPolicy(Root: Path, Errors: List[str]) -> int:
     return len(Policy["services"])
 
 
+def ValidateBuildPolicy(Root: Path, Errors: List[str]) -> int:
+    SchemaPath = Root / "policy" / "build-policy.schema.json"
+    ManifestPath = Root / "policy" / "build-policy.json"
+    NetworkPolicyPath = Root / "policy" / "network-service-policy.json"
+    if not SchemaPath.is_file() or not ManifestPath.is_file():
+        return 0
+    try:
+        Schema = json.loads(SchemaPath.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as Error:
+        Errors.append(f"invalid build policy schema: {Error}")
+        return 0
+    Properties = Schema.get("properties", {}) if isinstance(Schema, dict) else {}
+    if Properties.get("schema_version", {}).get("const") != BuildPolicySchemaVersion:
+        Errors.append("build policy schema must pin schema_version")
+    if Properties.get("manifest_id", {}).get("const") != BuildPolicyId:
+        Errors.append("build policy schema must pin manifest_id")
+    try:
+        Manifest = LoadBuildPolicy(
+            ManifestPath,
+            NetworkPolicyPath=NetworkPolicyPath,
+            RequireCanonical=True,
+        )
+    except BuildPolicyValidationError as Error:
+        Errors.append(f"invalid build policy manifest: {Error}")
+        return 0
+    return len(Manifest["settings"])
+
+
 def ValidateRequiredFiles(Root: Path, Errors: List[str]) -> None:
     for RelativePath in RequiredFiles:
         FullPath = Root / RelativePath
@@ -260,12 +301,14 @@ def Main(Arguments: Iterable[str] = ()) -> int:
     JsonCount = ValidateState(Root, Errors)
     DownstreamFileCount = ValidateDownstreamSource(Root, Errors)
     NetworkServiceCount = ValidateNetworkPolicy(Root, Errors)
+    BuildSettingCount = ValidateBuildPolicy(Root, Errors)
 
     print(f"Validated repository: {Root}")
     print(f"Ordered patches: {PatchCount}")
     print(f"State JSON files: {JsonCount}")
     print(f"Downstream source files: {DownstreamFileCount}")
     print(f"Network service policies: {NetworkServiceCount}")
+    print(f"Build policy settings: {BuildSettingCount}")
     print(f"Required files checked: {len(RequiredFiles)}")
     if Errors:
         print(f"STATIC validation failed with {len(Errors)} error(s):")

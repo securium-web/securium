@@ -63,6 +63,11 @@ unclassified native capability blocks network qualification; user-requested
 web, site-directed, and extension-directed traffic remains separately
 attributed.
 
+The canonical build-policy manifest defines intended configuration only. Global
+Chrome/Google credentials must remain disabled or empty; future exact-SHA
+verification must compare effective GN values and environment-derived
+credentials before build-policy qualification can pass.
+
 ## Upstream update handling
 
 When Chromium changes underneath a patch:

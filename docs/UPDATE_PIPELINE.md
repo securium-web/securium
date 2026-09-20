@@ -14,8 +14,11 @@ source integration and all qualification and release phases remain future work.
    future).** Create a disposable integration tree, materialize `src/chromium/`
    deterministically, and apply `patches/series` in order. Current PASS evidence
    is always marked synthetic and cannot qualify a candidate.
-5. **Compile (future).** Use real target build machines and retained
-   configurations.
+5. **Verify effective build policy and compile (future).** On the exact source,
+   verify supported GN arguments, generate the build, capture resolved values,
+   detect environment-derived credential overrides, and compare them with
+   `policy/build-policy.json` before compilation. Retain the configuration and
+   evidence from real target build machines.
 6. **Run compatibility and security qualification (future).** Execute defined
    tests and retain evidence for the candidate. A secure-profile-capable
    adoption must mechanically enumerate the exact-SHA OSCrypt acquisition set,
@@ -85,9 +88,11 @@ state-transition requirements.
 ## Privacy foundation sequence
 
 Foundation 0 is the static policy specification in
-`docs/NETWORK_SERVICE_POLICY.md`. The next task is **Privacy Foundation 1 —
-Build Policy Manifest** on a Chromium-capable worker: generate a complete
-exact-SHA native network capability inventory, map each capability to an
-approved semantic service or fail it as unclassified, and propose separately
-reviewed policy amendments for unresolved services. Runtime capture and network
-qualification comparison remain subsequent work.
+`docs/NETWORK_SERVICE_POLICY.md`. Privacy Foundation 1A adds the intended
+build-policy manifest in `docs/BUILD_POLICY.md`; it does not inspect Chromium or
+resolve effective GN values. The next task is **Privacy Foundation 1B —
+Exact-SHA Build Policy Verification** on a Chromium-capable worker. It must
+inspect supported arguments, run GN generation, capture effective values,
+detect environment-derived credential overrides, and fail manifest mismatches.
+Exact-SHA network inventory, runtime capture, and network qualification remain
+subsequent separate artifacts.

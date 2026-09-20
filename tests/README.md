@@ -14,6 +14,11 @@ user-initiated, replaced, site-directed, extension-directed, inventory-delta,
 and source-remapping behavior. They contain no Chromium traffic evidence and
 cannot support runtime qualification.
 
+Invented build-policy mutations and malformed input live under
+`fixtures/build-policy/`. They exercise baseline, credential, duplicate,
+contradiction, schema, product-choice, and pending-verification semantics without
+Chromium source or GN. Passing them proves only static manifest consistency.
+
 The future Foundation 1 routing suite is specified in
 `docs/SECURE_PROFILE_FOUNDATION_1.md`. It requires a real Chromium build and is
 not part of the current static suite.

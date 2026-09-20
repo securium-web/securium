@@ -32,6 +32,11 @@ for future exact-SHA inventories and runtime observations. It changes no
 Chromium behavior and provides no runtime network evidence. See
 `docs/NETWORK_SERVICE_POLICY.md`.
 
+Privacy Foundation 1A now defines the intended unbranded build-policy manifest,
+including an explicit global-credential boundary and a future effective-value
+verification contract. All settings remain pending real Chromium source
+verification; no GN generation or build occurred. See `docs/BUILD_POLICY.md`.
+
 ## Repository role
 
 This repository is the canonical downstream delta, not a Chromium source tree.
@@ -115,9 +120,11 @@ security release safe.
 - `patches/`: authoritative ordered Chromium patch series.
 - `src/`: substantial downstream-owned source material.
 - `state/`: separate candidate, qualified, and released revision state.
-- `policy/`: versioned canonical network/service policy and schema.
+- `policy/`: versioned canonical build and network/service policy manifests and
+  schemas.
 - `scripts/`: deterministic repository tooling, candidate detection, and the
-  synthetic patch and network-policy comparison engines.
+  build-policy validator plus synthetic patch and network-policy comparison
+  engines.
 - `tests/`: static, detector, and synthetic patch-engine checks now; real
   integration and security gates later.
 - `docs/`: repository, secure-profile, network/service, security, upstream,
@@ -129,12 +136,13 @@ Run the currently supported gate with:
 ```powershell
 python scripts/validate_repo.py
 python -m unittest discover -s tests/static -p "test_*.py"
+python scripts/build_policy.py
 python scripts/network_policy.py validate --policy policy/network-service-policy.json
 python scripts/chromium_update.py check --offline-fixture tests/fixtures/chromiumdash/valid-stable-windows.json
 python scripts/patch_qualify.py --request tests/fixtures/patch-engine/requests/valid.json --source tests/fixtures/patch-engine/sources/base --repository-root tests/fixtures/patch-engine/repositories/success --workspace artifacts/local-synthetic-check --source-kind synthetic-fixture --fixture-id local-check
 ```
 
-The first three commands are the required offline `STATIC` gate. The fourth
+The first four commands are the required offline `STATIC` gate. The fifth
 demonstrates a read-only offline candidate check. A live read-only check uses
 `python scripts/chromium_update.py check`; add `--json` for automation. Candidate
 state changes require the explicit `--write-candidate` option. See

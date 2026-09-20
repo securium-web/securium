@@ -1,6 +1,7 @@
 """Unit tests for repository static validation."""
 
 import contextlib
+import copy
 import importlib.util
 import io
 import json
@@ -97,8 +98,40 @@ class ValidatorTests(unittest.TestCase):
                 }
             ],
         }
+        MinimalPolicy["services"][0]["service_id"] = "chrome_browser_updater"
+        SafeBrowsingService = copy.deepcopy(MinimalPolicy["services"][0])
+        SafeBrowsingService["service_id"] = "safe_browsing_standard"
+        MinimalPolicy["services"].append(SafeBrowsingService)
         (Root / "policy" / "network-service-policy.json").write_text(
             ValidateRepo.CanonicalJson(MinimalPolicy), encoding="utf-8"
+        )
+        (Root / "policy" / "build-policy.schema.json").write_text(
+            json.dumps(
+                {
+                    "properties": {
+                        "manifest_id": {"const": ValidateRepo.BuildPolicyId},
+                        "schema_version": {
+                            "const": ValidateRepo.BuildPolicySchemaVersion
+                        },
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        CanonicalBuildManifest = json.loads(
+            (
+                ValidatorPath.parents[1] / "policy" / "build-policy.json"
+            ).read_text(encoding="utf-8")
+        )
+        (Root / "policy" / "build-policy.json").write_text(
+            json.dumps(
+                CanonicalBuildManifest,
+                ensure_ascii=False,
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
         )
 
     def RunValidator(self, Root: Path):
@@ -249,6 +282,18 @@ class ValidatorTests(unittest.TestCase):
 
         self.assertEqual(1, ExitCode)
         self.assertIn("invalid network service policy", Output)
+
+    def test_invalid_build_policy_fails(self):
+        with tempfile.TemporaryDirectory() as TempDirectory:
+            Root = Path(TempDirectory)
+            self.CreateRepository(Root)
+            (Root / "policy" / "build-policy.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            ExitCode, Output = self.RunValidator(Root)
+
+        self.assertEqual(1, ExitCode)
+        self.assertIn("invalid build policy manifest", Output)
 
 
 if __name__ == "__main__":

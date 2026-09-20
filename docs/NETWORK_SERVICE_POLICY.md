@@ -218,8 +218,9 @@ schema, classification, delta, and mismatch logic at `STATIC`; they do not
 provide `PATCH-APPLY`, `COMPILE`, `TEST`, `RUNTIME`, or security evidence for
 Chromium.
 
-The next task is **Privacy Foundation 1 — Build Policy Manifest** on a
-Chromium-capable worker. It should generate the first exact-SHA source inventory,
-map every native network capability or fail it as unclassified, preserve the
-four-artifact separation above, and propose policy amendments without silently
-approving them.
+Privacy Foundation 1A defines the intended build-policy manifest in
+`docs/BUILD_POLICY.md`. Its build settings support selected service-policy
+decisions but do not prove them. The next task is **Privacy Foundation 1B —
+Exact-SHA Build Policy Verification** on a Chromium-capable worker. Exact-SHA
+native network capability inventory and runtime observation remain later,
+separate artifacts under this policy model.

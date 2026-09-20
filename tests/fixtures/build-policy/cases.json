@@ -1,0 +1,101 @@
+{
+  "cases": [
+    {
+      "case_id": "valid_baseline",
+      "expected_valid": true,
+      "operation": "NONE"
+    },
+    {
+      "case_id": "missing_required_invariant",
+      "expected_error": "missing required baseline",
+      "expected_valid": false,
+      "operation": "REMOVE_SETTING",
+      "setting_name": "is_chrome_branded"
+    },
+    {
+      "case_id": "chrome_branded_true",
+      "expected_error": "is_chrome_branded.expected",
+      "expected_valid": false,
+      "operation": "SET_EXPECTED",
+      "setting_name": "is_chrome_branded",
+      "value": true
+    },
+    {
+      "case_id": "official_google_api_keys_enabled",
+      "expected_error": "official Google API keys must remain disabled",
+      "expected_valid": false,
+      "operation": "SET_EXPECTED",
+      "setting_name": "use_official_google_api_keys",
+      "value": true
+    },
+    {
+      "case_id": "nonempty_global_api_key",
+      "expected_error": "global credential setting google_api_key must remain empty",
+      "expected_valid": false,
+      "operation": "SET_EXPECTED",
+      "setting_name": "google_api_key",
+      "value": "invented-api-key-value"
+    },
+    {
+      "case_id": "nonempty_oauth_client_id",
+      "expected_error": "global credential setting google_default_client_id must remain empty",
+      "expected_valid": false,
+      "operation": "SET_EXPECTED",
+      "setting_name": "google_default_client_id",
+      "value": "invented-client-id"
+    },
+    {
+      "case_id": "nonempty_oauth_client_secret",
+      "expected_error": "global credential setting google_default_client_secret must remain empty",
+      "expected_valid": false,
+      "operation": "SET_EXPECTED",
+      "setting_name": "google_default_client_secret",
+      "value": "invented-client-secret"
+    },
+    {
+      "case_id": "duplicate_setting",
+      "expected_error": "duplicate build policy setting",
+      "expected_valid": false,
+      "operation": "DUPLICATE_SETTING",
+      "setting_name": "enable_updater"
+    },
+    {
+      "case_id": "contradictory_setting",
+      "expected_error": "contradictory build policy setting",
+      "expected_valid": false,
+      "operation": "CONTRADICT_SETTING",
+      "setting_name": "enable_updater",
+      "value": true
+    },
+    {
+      "case_id": "unsupported_schema",
+      "expected_error": "unsupported build policy schema_version",
+      "expected_valid": false,
+      "operation": "SET_SCHEMA_VERSION",
+      "value": 2
+    },
+    {
+      "case_id": "speculative_flag_incorrectly_verified",
+      "expected_error": "speculative unsupported setting",
+      "expected_valid": false,
+      "operation": "ADD_SPECULATIVE_VERIFIED_SETTING",
+      "setting_name": "enable_glic"
+    },
+    {
+      "case_id": "product_choice_field",
+      "expected_classification": "PRODUCT_CHOICE",
+      "expected_stability": "PREFERRED",
+      "expected_valid": true,
+      "operation": "ASSERT_SETTING",
+      "setting_name": "enable_compose"
+    },
+    {
+      "case_id": "pending_real_source_verification_field",
+      "expected_valid": true,
+      "expected_verification_status": "PENDING_REAL_SOURCE_VERIFICATION",
+      "operation": "ASSERT_SETTING",
+      "setting_name": "safe_browsing_mode"
+    }
+  ],
+  "schema_version": 1
+}

@@ -16,6 +16,17 @@ Comparison results are explicitly marked synthetic. The current fixtures prove
 only static classification and fail-closed comparison behavior; they are not
 Chromium network observations. See `docs/NETWORK_SERVICE_POLICY.md`.
 
+`build_policy.py` validates the canonical intended build policy, its required
+baseline, global-credential boundary, pending source-verification status, and
+references to approved network services:
+
+```powershell
+python scripts/build_policy.py
+```
+
+It does not inspect Chromium, run GN, resolve environment overrides, or claim
+runtime behavior. See `docs/BUILD_POLICY.md`.
+
 `chromium_update.py` separates live fetching from offline parsing, validation,
 comparison, and state writing. It is read-only unless `--write-candidate` is
 explicitly supplied:
