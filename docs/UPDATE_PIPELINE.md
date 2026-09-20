@@ -17,7 +17,10 @@ source integration and all qualification and release phases remain future work.
 5. **Compile (future).** Use real target build machines and retained
    configurations.
 6. **Run compatibility and security qualification (future).** Execute defined
-   tests and retain evidence for the candidate.
+   tests and retain evidence for the candidate. A secure-profile-capable
+   adoption must mechanically enumerate the exact-SHA OSCrypt acquisition set,
+   classify every relevant consumer, compare it with the prior accepted
+   inventory, and fail on a new or changed unclassified profile-sensitive path.
 7. **Package and sign (future).** Produce platform artifacts only after required
    review.
 8. **Publish signed updater metadata (future).** Bind versions and hashes under
@@ -59,3 +62,17 @@ The synthetic engine now emits the bounded patch-failure portion of this future
 repair input: request, ordered and applied patches, failed patch and hash,
 affected paths, Git diagnostics, and evidence. Real-worker old/new upstream
 files, upstream diffs, compile logs, and test logs remain future additions.
+
+## Secure-profile experiment sequence
+
+The next architecture experiment is Foundation 1: synthetic profile crypto
+routing on a Chromium-capable worker. It must recover a test PEK before full
+protected-profile construction, create one profile-owned `OSCryptAsync`, route
+the required classified consumers, and retain the complete matrix described in
+`docs/SECURE_PROFILE_FOUNDATION_1.md`.
+
+Real FIDO, Windows Hello/TPM, App-Bound envelope composition, recovery,
+migration, packaging, and release work remain later independent slices. A
+Foundation 1 result receives no authority to update `qualified` or `released`
+unless a future qualification pipeline separately satisfies the applicable
+state-transition requirements.

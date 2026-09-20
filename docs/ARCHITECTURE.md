@@ -58,6 +58,26 @@ connect that logic at stable Chromium integration boundaries. This arrangement
 reduces conflicts, discourages accidental forks of upstream implementations,
 and makes divergence measurable.
 
+## Secure-profile design baseline
+
+The proposed secure profile is an experimental downstream architecture, not an
+existing Chromium capability. Its current baseline is a random per-profile PEK,
+recovered by Securium before protected-profile runtime construction, exposed
+through one Securium `KeyProvider` in a profile-owned `OSCryptAsync`, and routed
+only to explicitly classified profile-sensitive consumers. Ordinary profiles
+retain Chromium's browser-global OSCrypt behavior.
+
+Locked state belongs to the Securium profile lifecycle above `OSCryptAsync`.
+The protected crypto context is constructed only after unlock has produced the
+PEK; a completed temporarily-unavailable provider is not a reusable locked
+state. The routing identity must be available before full `ProfileImpl`
+construction and is not yet frozen to `Profile*`.
+
+`docs/SECURE_PROFILE_ARCHITECTURE.md` is the canonical reconciled experimental
+baseline. `docs/SECURE_PROFILE_FOUNDATION_1.md` specifies the next synthetic
+Chromium routing experiment. Neither document adds patches, runtime evidence,
+or qualification.
+
 ## Update lifecycle
 
 1. Detect released Chromium Stable metadata and validate a candidate without
@@ -73,6 +93,10 @@ and makes divergence measurable.
    metadata.
 9. Update canonical qualified or released state only through its owning
    authority and only to the level actually achieved.
+
+For a secure-profile-capable adoption, the qualification worker must also
+mechanically inventory exact-SHA OSCrypt acquisitions, classify each relevant
+consumer, and block on new or changed unclassified profile-sensitive paths.
 
 Codex repair belongs between a failed integration/qualification attempt and a
 fresh run of all affected gates. Update detection, repair, qualification,

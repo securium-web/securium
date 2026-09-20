@@ -15,3 +15,9 @@ to Chromium-owned files belong in patches.
 
 This directory currently contains documentation only. It does not implement
 secure profiles, a key provider, secret migration, or cryptography.
+
+The next proposed implementation slice is the synthetic routing experiment in
+`docs/SECURE_PROFILE_FOUNDATION_1.md`. When performed on a Chromium-capable
+worker, substantial experiment-only context/provider/inventory logic should
+remain downstream-owned here. This repository currently contains none of that
+code.

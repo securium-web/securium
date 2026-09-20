@@ -4,6 +4,14 @@ Evidence levels are cumulative. Each label requires its own evidence plus every
 preceding level. Results apply only to the exact recorded Chromium SHA, patch
 series, downstream source revision, platform, and configuration.
 
+## Architecture claim vocabulary
+
+Architecture documents may label an individual claim `DOCUMENTED`,
+`IMPLEMENTATION-DERIVED`, `INFERRED`, `EXPERIMENTAL`, or `QUALIFIED`.
+These are provenance/status labels, not additional project evidence levels.
+`QUALIFIED` requires the applicable gates below on an exact revision and cannot
+be inferred from review agreement, source inspection, or static documentation.
+
 ## STATIC
 
 Repository consistency, required-file presence, patch-series metadata, patch
@@ -40,6 +48,15 @@ weakening.
 
 Required browser behaviors are validated in a real supported runtime using
 documented scenarios and platform configurations.
+
+For secure-profile routing, this includes the accepted Foundation 1 matrix and
+an exact-SHA OSCrypt consumer inventory. The inventory must classify each
+relevant acquisition as browser-global, profile-sensitive, feature-gated
+profile-sensitive, migration-only, or irrelevant. New or changed unclassified
+profile-relevant acquisitions block the secure-profile result. A Foundation 1
+pass establishes routing/lifecycle evidence only; it does not qualify external
+providers, migration, App-Bound composition, runtime relock, or the product as a
+whole.
 
 ## SECURITY-QUALIFIED
 

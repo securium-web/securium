@@ -7,3 +7,7 @@ requests, and patches live under `fixtures/patch-engine/`. These validate engine
 semantics only. `integration/` and `security/` reserve explicit future
 qualification boundaries. Passing the current tests supports only the `STATIC`
 evidence level.
+
+The future Foundation 1 routing suite is specified in
+`docs/SECURE_PROFILE_FOUNDATION_1.md`. It requires a real Chromium build and is
+not part of the current static suite.

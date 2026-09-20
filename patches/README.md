@@ -24,3 +24,10 @@ The engine validates every listed patch before preparing a result, applies
 exactly in series order, and stops at the first failed `git apply --check` or
 `git apply`. It never skips, reorders, regenerates, or invokes Codex. Synthetic
 fixture success is engine validation only.
+
+No secure-profile integration patch exists. Future Foundation 1 patches must be
+limited to the smallest lifecycle and consumer-routing seams needed by the
+experiment; they must not add FIDO, Hello/TPM, App-Bound envelope, recovery, or
+migration behavior. A complete exact-SHA OSCrypt consumer inventory is required
+alongside those patches, and unclassified profile-relevant acquisitions block
+qualification.

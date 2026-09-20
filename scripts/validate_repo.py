@@ -70,6 +70,8 @@ RequiredFiles = (
     "docs/ARCHITECTURE.md",
     "docs/CANDIDATE_DETECTION.md",
     "docs/PATCH_QUALIFICATION.md",
+    "docs/SECURE_PROFILE_ARCHITECTURE.md",
+    "docs/SECURE_PROFILE_FOUNDATION_1.md",
     "docs/SECURITY_MODEL.md",
     "docs/UPSTREAM_POLICY.md",
     "docs/PATCH_POLICY.md",

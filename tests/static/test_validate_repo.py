@@ -177,6 +177,16 @@ class ValidatorTests(unittest.TestCase):
         self.assertEqual(1, ExitCode)
         self.assertIn("synthetic: true", Output)
 
+    def test_secure_profile_baseline_documents_are_required(self):
+        with tempfile.TemporaryDirectory() as TempDirectory:
+            Root = Path(TempDirectory)
+            self.CreateRepository(Root)
+            (Root / "docs" / "SECURE_PROFILE_FOUNDATION_1.md").unlink()
+            ExitCode, Output = self.RunValidator(Root)
+
+        self.assertEqual(1, ExitCode)
+        self.assertIn("SECURE_PROFILE_FOUNDATION_1.md", Output)
+
 
 if __name__ == "__main__":
     unittest.main()

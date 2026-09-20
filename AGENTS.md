@@ -48,6 +48,15 @@ Never resolve compatibility, patch, build, or test failures by:
 Stop for explicit architecture and security review if an upstream change makes
 an invariant infeasible or ambiguous.
 
+For the experimental secure-profile design, locked state exists above
+`OSCryptAsync`: recover the profile PEK before constructing the protected
+profile's crypto context and runtime. Do not model reusable locked state with a
+completed temporarily-unavailable provider. Ordinary profiles retain upstream
+browser-global OSCrypt behavior; a protected profile must not include ordinary
+providers as runtime fallbacks. Every Chromium Stable adoption must classify
+the exact-SHA OSCrypt consumer inventory, and any new or changed unclassified
+profile-relevant acquisition blocks secure-profile qualification.
+
 ## Upstream update handling
 
 When Chromium changes underneath a patch:

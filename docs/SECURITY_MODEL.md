@@ -1,8 +1,9 @@
 # Security Model
 
-This document establishes scope and provisional invariants. It does not approve
-a key provider, cryptographic protocol, migration design, or implementation.
-Those require a separate architecture and threat-model review before coding.
+This document establishes scope and durable invariants. It does not approve a
+platform key provider, cryptographic protocol, migration design, or production
+implementation. The reconciled experimental design and its unresolved
+assumptions are in `docs/SECURE_PROFILE_ARCHITECTURE.md`.
 
 ## Threat classes
 
@@ -30,8 +31,36 @@ machine from accessing secrets.
 - Key separation and authentication requirements must survive upstream repairs.
 - Updater trust must be cryptographically anchored independently of ordinary
   transport trust.
+- Each protected profile must use a cryptographically independent random PEK.
+- Locked state must remain above the protected profile's `OSCryptAsync`; the PEK
+  is recovered before constructing that crypto context and profile runtime.
+- A protected profile's runtime OSCrypt provider set must not include ordinary
+  DPAPI or App-Bound fallback providers.
+- Ordinary profiles must retain upstream browser-global OSCrypt behavior.
+- Failure to recover an existing PEK must never generate a replacement PEK.
+- Protected claims must remain limited to the exact, qualified OSCrypt consumer
+  inventory and configuration.
+- Every adopted Chromium SHA must classify new and changed profile-relevant
+  OSCrypt acquisitions before secure-profile qualification can pass.
+- Unlock admits receiving Chromium processes and Encryptors into the trusted
+  runtime boundary; discarding the PEK alone is not runtime relock.
 
 These are requirements, not implementation claims. Their precise meaning,
 platform behavior, recovery model, cryptographic choices, and test oracles must
 be established by a dedicated design review. Any change affecting these
 semantics requires explicit security review even if patches apply and tests pass.
+
+## Experimental provider directions
+
+The current architecture supports further experiments, not provider approval:
+
+- FIDO uses a UV-associated WebAuthn PRF or CTAP `hmac-secret`-derived secret,
+  a Securium domain-separated KDF, a KEK, and AEAD unwrap of the random PEK.
+  WebAuthn `prf` and CTAP `hmac-secret` are not interchangeable protocol names.
+- TPM-backed CNG is plausible; the exact Windows Hello per-unlock primitive is
+  unresolved.
+- App-Bound may become an additional `AND` envelope requirement only after
+  Securium packaging is qualified. The regenerating Chromium App-Bound
+  `KeyProvider` is not a Securium PEK provider.
+- v1 returns to locked state through effective profile/browser teardown.
+  Runtime relock remains deferred.

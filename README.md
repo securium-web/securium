@@ -1,14 +1,15 @@
-# Chromium Secure
+# Securium
 
-Chromium Secure is a minimal downstream Chromium patch project intended to
-strengthen protection of Chromium profile secrets. Its intended boundary is
-stronger protection for secrets at rest and resistance to copied or stolen
-profile data. A protected profile may require external key material to unlock,
-and explicitly configured stronger protection must not silently downgrade.
+Securium is a minimal downstream Chromium security patch project. Its proposed
+secure-profile design would require external key authorization before selected
+Chromium profile secrets can be decrypted, so possession of copied profile
+files alone is insufficient for the explicitly qualified OSCrypt-covered
+surface.
 
-This does not make an unlocked browser or compromised machine safe. Malware
-running while Chromium and its secrets are available, elevated administrator
-compromise, and compromised update infrastructure are separate threat classes.
+Securium is not whole-profile encryption. It does not claim to protect history,
+web storage, profile metadata, every Chromium database, or an unlocked browser
+from compromised trusted processes. The secure-profile architecture is an
+experimental candidate and no production browser release exists yet.
 
 > **Status: static control plane / architecture only**
 >
@@ -17,6 +18,13 @@ compromise, and compromised update infrastructure are separate threat classes.
 > **No production security patches exist yet.**
 >
 > **No Chromium build has been qualified from this repository.**
+>
+> **No production browser release exists.**
+
+The reconciled secure-profile core design is a strong candidate for a synthetic
+Chromium routing experiment. It is not runtime-qualified. See
+`docs/SECURE_PROFILE_ARCHITECTURE.md` and
+`docs/SECURE_PROFILE_FOUNDATION_1.md`.
 
 ## Repository role
 
@@ -43,6 +51,11 @@ Chromium changes rapidly and its security releases need prompt adoption. A
 small, explicit patch series reduces long-term divergence and maintenance cost.
 Patch failures are useful: they make changed upstream assumptions visible
 instead of allowing an old fork to drift silently.
+
+For future secure-profile revisions, each Stable adoption must also enumerate
+and classify the exact-SHA OSCrypt consumer surface. A changed or unclassified
+profile-relevant acquisition is a qualification blocker, not an invitation to
+route every consumer blindly.
 
 ## Intended update flow
 
@@ -94,8 +107,8 @@ security release safe.
   synthetic patch engine.
 - `tests/`: static, detector, and synthetic patch-engine checks now; real
   integration and security gates later.
-- `docs/`: architecture, security, upstream, candidate, patch, update, and
-  qualification policy.
+- `docs/`: repository and secure-profile architecture, the Foundation 1
+  experiment, security, upstream, patch, update, and qualification policy.
 - `build/`, `updater/`, and `release/`: documented future boundaries.
 
 Run the currently supported gate with:
