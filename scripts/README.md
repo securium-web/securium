@@ -1,7 +1,20 @@
 # Repository Scripts
 
 `validate_repo.py` performs deterministic, offline repository and state checks
-using only the Python standard library. It never contacts ChromiumDash.
+using only the Python standard library. This includes the canonical
+network/service policy and schema. It never contacts ChromiumDash.
+
+`network_policy.py` validates the versioned service policy and compares
+invented or future evidence without network access or canonical-state writes:
+
+```powershell
+python scripts/network_policy.py validate --policy policy/network-service-policy.json
+python scripts/network_policy.py compare --policy policy/network-service-policy.json --current-inventory path/to/inventory.json --json
+```
+
+Comparison results are explicitly marked synthetic. The current fixtures prove
+only static classification and fail-closed comparison behavior; they are not
+Chromium network observations. See `docs/NETWORK_SERVICE_POLICY.md`.
 
 `chromium_update.py` separates live fetching from offline parsing, validation,
 comparison, and state writing. It is read-only unless `--write-candidate` is

@@ -1,0 +1,123 @@
+{
+  "cases": [
+    {
+      "case_id": "allowed_background_service",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "operation": "RUNTIME",
+      "service_template": "ALLOW_BACKGROUND"
+    },
+    {
+      "case_id": "denied_native_service",
+      "expected_issue_codes": [
+        "DENIED_SERVICE_OBSERVED"
+      ],
+      "expected_result": "FAIL",
+      "operation": "RUNTIME",
+      "service_template": "DENY"
+    },
+    {
+      "case_id": "conditional_service_condition_satisfied",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "operation": "RUNTIME",
+      "satisfied_conditions": [
+        "background_mode_enabled"
+      ],
+      "service_template": "CONDITIONAL"
+    },
+    {
+      "case_id": "conditional_service_condition_unsatisfied",
+      "expected_issue_codes": [
+        "CONDITION_NOT_SATISFIED"
+      ],
+      "expected_result": "FAIL",
+      "operation": "RUNTIME",
+      "service_template": "CONDITIONAL"
+    },
+    {
+      "case_id": "user_initiated_service",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "operation": "RUNTIME",
+      "service_template": "USER_INITIATED",
+      "user_actions": [
+        "request_service_now"
+      ]
+    },
+    {
+      "case_id": "replaced_upstream_provider_observed",
+      "expected_issue_codes": [
+        "REPLACED_UPSTREAM_PROVIDER_OBSERVED"
+      ],
+      "expected_result": "FAIL",
+      "operation": "RUNTIME",
+      "service_template": "REPLACED"
+    },
+    {
+      "case_id": "site_directed_traffic",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "operation": "RUNTIME",
+      "service_template": "SITE_DIRECTED"
+    },
+    {
+      "case_id": "extension_directed_traffic",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "operation": "RUNTIME",
+      "service_template": "EXTENSION_DIRECTED"
+    },
+    {
+      "case_id": "new_unclassified_native_capability",
+      "expected_issue_codes": [
+        "UNCLASSIFIED_NATIVE_CAPABILITY"
+      ],
+      "expected_result": "FAIL",
+      "expected_delta_bucket": "added",
+      "operation": "NEW_UNCLASSIFIED"
+    },
+    {
+      "case_id": "changed_trigger",
+      "expected_issue_codes": [
+        "MATERIAL_CAPABILITY_CHANGE"
+      ],
+      "expected_result": "FAIL",
+      "expected_delta_bucket": "changed",
+      "operation": "CHANGED_TRIGGER"
+    },
+    {
+      "case_id": "changed_data_category",
+      "expected_issue_codes": [
+        "MATERIAL_CAPABILITY_CHANGE"
+      ],
+      "expected_result": "FAIL",
+      "expected_delta_bucket": "changed",
+      "operation": "CHANGED_DATA"
+    },
+    {
+      "case_id": "changed_credential_mode",
+      "expected_issue_codes": [
+        "MATERIAL_CAPABILITY_CHANGE"
+      ],
+      "expected_result": "FAIL",
+      "expected_delta_bucket": "changed",
+      "operation": "CHANGED_CREDENTIAL"
+    },
+    {
+      "case_id": "removed_capability",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "expected_delta_bucket": "removed",
+      "operation": "REMOVED_CAPABILITY"
+    },
+    {
+      "case_id": "source_only_mapping_change",
+      "expected_issue_codes": [],
+      "expected_result": "PASS",
+      "expected_delta_bucket": "source_remapped",
+      "operation": "SOURCE_MAPPING_CHANGE"
+    }
+  ],
+  "schema_version": 1
+}

@@ -57,6 +57,12 @@ providers as runtime fallbacks. Every Chromium Stable adoption must classify
 the exact-SHA OSCrypt consumer inventory, and any new or changed unclassified
 profile-relevant acquisition blocks secure-profile qualification.
 
+Every browser-native network capability and observed native connection must map
+to an approved semantic service policy. A new or materially changed
+unclassified native capability blocks network qualification; user-requested
+web, site-directed, and extension-directed traffic remains separately
+attributed.
+
 ## Upstream update handling
 
 When Chromium changes underneath a patch:

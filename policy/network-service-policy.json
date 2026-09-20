@@ -1,0 +1,230 @@
+{
+  "policy_id": "securium-network-service-policy",
+  "schema_version": 1,
+  "services": [
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "NONE"
+      ],
+      "data_categories": [
+        "CLIENT_VERSION",
+        "OS_PLATFORM"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "BROWSER_NATIVE_BACKGROUND",
+      "name": "Chrome Browser Updater",
+      "policy_state": "DENY",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "browser_update_check"
+        }
+      ],
+      "rationale": "Securium uses a separately qualified downstream update pipeline; Chrome browser self-update traffic is outside the product boundary.",
+      "replacement_boundary": null,
+      "service_id": "chrome_browser_updater",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "A browser binary update check or download is scheduled.",
+        "id": "browser_update_check"
+      },
+      "user_action": null
+    },
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "NONE"
+      ],
+      "data_categories": [
+        "CLIENT_VERSION",
+        "COMPONENT_IDENTIFIERS",
+        "HARDWARE_CAPABILITIES",
+        "NETWORK_ADDRESS",
+        "OS_PLATFORM"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "BROWSER_NATIVE_BACKGROUND",
+      "name": "Component Updater",
+      "policy_state": "ALLOW_BACKGROUND",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MAY_OBSERVE",
+          "scenario_id": "component_update_cycle"
+        }
+      ],
+      "rationale": "Security-relevant Chromium components remain available at this policy layer; their exact providers and controls require exact-SHA inventory and qualification.",
+      "replacement_boundary": null,
+      "service_id": "component_updater",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "The component update scheduler checks for or downloads a component.",
+        "id": "component_update_cycle"
+      },
+      "user_action": null
+    },
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "NONE"
+      ],
+      "data_categories": [
+        "DIAGNOSTIC_DATA",
+        "SECURITY_INCIDENT_DATA"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "BROWSER_NATIVE_CONDITIONAL",
+      "name": "Crashpad Remote Upload",
+      "policy_state": "DENY",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "crash_report_capture"
+        }
+      ],
+      "rationale": "Local crash capture may be retained, but remote crash-report upload is not approved.",
+      "replacement_boundary": null,
+      "service_id": "crashpad_remote_upload",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "Crash handling attempts to upload a captured report.",
+        "id": "crash_report_upload"
+      },
+      "user_action": null
+    },
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "NONE"
+      ],
+      "data_categories": [
+        "CLIENT_VERSION",
+        "DIAGNOSTIC_DATA",
+        "OS_PLATFORM"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "BROWSER_NATIVE_BACKGROUND",
+      "name": "Remote Metrics Reporting",
+      "policy_state": "DENY",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "cold_start"
+        },
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "idle_metrics_cycle"
+        }
+      ],
+      "rationale": "Remote metrics and telemetry reporting are not approved; local diagnostic collection is a separate decision.",
+      "replacement_boundary": null,
+      "service_id": "remote_metrics_reporting",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "The browser schedules a metrics or telemetry upload.",
+        "id": "metrics_upload"
+      },
+      "user_action": null
+    },
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "SERVICE_SPECIFIC_API_CREDENTIAL"
+      ],
+      "data_categories": [
+        "CLIENT_VERSION",
+        "NETWORK_ADDRESS",
+        "URL_HASH_OR_PREFIX"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "BROWSER_NATIVE_BACKGROUND",
+      "name": "Safe Browsing Standard Protection",
+      "policy_state": "ALLOW_BACKGROUND",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MAY_OBSERVE",
+          "scenario_id": "standard_safe_browsing_operation"
+        }
+      ],
+      "rationale": "Standard Safe Browsing remains part of the security baseline; exact request, provider, and credential semantics still require exact-SHA qualification.",
+      "replacement_boundary": null,
+      "service_id": "safe_browsing_standard",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "Standard Safe Browsing performs a security check or update.",
+        "id": "standard_safe_browsing_operation"
+      },
+      "user_action": null
+    }
+  ]
+}

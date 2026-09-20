@@ -1,0 +1,450 @@
+{
+  "$defs": {
+    "constraint": {
+      "additionalProperties": false,
+      "properties": {
+        "constraint_type": {
+          "enum": [
+            "HOSTNAME",
+            "HOSTNAME_SUFFIX",
+            "POLICY_SELECTED",
+            "URL_PREFIX"
+          ]
+        },
+        "value": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "constraint_type",
+        "value"
+      ],
+      "type": "object"
+    },
+    "controls": {
+      "additionalProperties": false,
+      "properties": {
+        "build_flags": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "policy_hooks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "prefs": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "provider_boundaries": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "build_flags",
+        "features",
+        "policy_hooks",
+        "prefs",
+        "provider_boundaries"
+      ],
+      "type": "object"
+    },
+    "descriptor": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "id"
+      ],
+      "type": "object"
+    },
+    "replacement_boundary": {
+      "additionalProperties": false,
+      "properties": {
+        "enforcement_boundary": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "replacement_service_id": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "upstream_provider": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "enforcement_boundary",
+        "replacement_service_id",
+        "upstream_provider"
+      ],
+      "type": "object"
+    },
+    "scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "expectation": {
+          "enum": [
+            "MAY_OBSERVE",
+            "MUST_NOT_OBSERVE",
+            "MUST_OBSERVE"
+          ]
+        },
+        "scenario_id": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "expectation",
+        "scenario_id"
+      ],
+      "type": "object"
+    },
+    "service": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "policy_status": {
+                "const": "APPROVED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_state": {
+                "not": {
+                  "const": "UNCLASSIFIED"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_status": {
+                "const": "PENDING_REVIEW"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "policy_state": {
+                "const": "UNCLASSIFIED"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_state": {
+                "const": "CONDITIONAL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "activation_condition": {
+                "$ref": "#/$defs/descriptor"
+              },
+              "initiator_class": {
+                "const": "BROWSER_NATIVE_CONDITIONAL"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_state": {
+                "const": "USER_INITIATED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "initiator_class": {
+                "const": "USER_TRIGGERED_SERVICE"
+              },
+              "user_action": {
+                "$ref": "#/$defs/descriptor"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "policy_state": {
+                "const": "REPLACED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "replacement_boundary": {
+                "$ref": "#/$defs/replacement_boundary"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "activation_condition": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/descriptor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "controls": {
+          "$ref": "#/$defs/controls"
+        },
+        "credential_modes": {
+          "items": {
+            "enum": [
+              "BROWSER_ACCOUNT_OAUTH",
+              "COOKIES",
+              "EXTENSION_CONTROLLED",
+              "NONE",
+              "SERVICE_SPECIFIC_API_CREDENTIAL",
+              "SITE_CONTROLLED"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "data_categories": {
+          "items": {
+            "enum": [
+              "ACCOUNT_IDENTITY",
+              "AUTHENTICATION_MATERIAL",
+              "CLIENT_VERSION",
+              "COMPONENT_IDENTIFIERS",
+              "CONNECTIVITY_PROBE",
+              "DIAGNOSTIC_DATA",
+              "EXTENSION_IDENTIFIERS",
+              "GEOLOCATION_NETWORK_DATA",
+              "HARDWARE_CAPABILITIES",
+              "MODEL_REQUEST_METADATA",
+              "NETWORK_ADDRESS",
+              "OS_PLATFORM",
+              "OTHER",
+              "PAGE_CONTENT",
+              "SEARCH_INPUT",
+              "SECURITY_INCIDENT_DATA",
+              "TEXT_INPUT",
+              "URL",
+              "URL_HASH_OR_PREFIX"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "destination_classes": {
+          "items": {
+            "enum": [
+              "DYNAMIC_OR_UNKNOWN",
+              "EXTENSION_CONTROLLED",
+              "GOOGLE_OWNED_SERVICE",
+              "LOCAL_OR_LOCAL_NETWORK",
+              "OTHER_THIRD_PARTY_SERVICE",
+              "SECURIUM_SERVICE",
+              "SITE_CONTROLLED",
+              "USER_SELECTED_PROVIDER"
+            ]
+          },
+          "minItems": 1,
+          "type": "array",
+          "uniqueItems": true
+        },
+        "expected_destination_constraints": {
+          "items": {
+            "$ref": "#/$defs/constraint"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "initiator_class": {
+          "enum": [
+            "BROWSER_NATIVE_BACKGROUND",
+            "BROWSER_NATIVE_CONDITIONAL",
+            "EXTENSION_DIRECTED",
+            "SITE_DIRECTED",
+            "USER_REQUESTED_WEB",
+            "USER_TRIGGERED_SERVICE"
+          ]
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "policy_state": {
+          "enum": [
+            "ALLOW_BACKGROUND",
+            "CONDITIONAL",
+            "DENY",
+            "EXTENSION_DIRECTED",
+            "REPLACED",
+            "SITE_DIRECTED",
+            "UNCLASSIFIED",
+            "USER_INITIATED"
+          ]
+        },
+        "policy_status": {
+          "enum": [
+            "APPROVED",
+            "PENDING_REVIEW"
+          ]
+        },
+        "qualification_scenarios": {
+          "items": {
+            "$ref": "#/$defs/scenario"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "rationale": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "replacement_boundary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/replacement_boundary"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "service_id": {
+          "pattern": "^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$",
+          "type": "string"
+        },
+        "source_mapping_hints": {
+          "additionalProperties": false,
+          "properties": {
+            "source_paths": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            },
+            "traffic_annotation_ids": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": true
+            }
+          },
+          "required": [
+            "source_paths",
+            "traffic_annotation_ids"
+          ],
+          "type": "object"
+        },
+        "trigger": {
+          "$ref": "#/$defs/descriptor"
+        },
+        "user_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/descriptor"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "activation_condition",
+        "controls",
+        "credential_modes",
+        "data_categories",
+        "destination_classes",
+        "expected_destination_constraints",
+        "initiator_class",
+        "name",
+        "policy_state",
+        "policy_status",
+        "qualification_scenarios",
+        "rationale",
+        "replacement_boundary",
+        "service_id",
+        "source_mapping_hints",
+        "trigger",
+        "user_action"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://raw.githubusercontent.com/securium-web/securium/main/policy/network-service-policy.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "policy_id": {
+      "const": "securium-network-service-policy"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "services": {
+      "items": {
+        "$ref": "#/$defs/service"
+      },
+      "minItems": 1,
+      "type": "array"
+    }
+  },
+  "required": [
+    "policy_id",
+    "schema_version",
+    "services"
+  ],
+  "title": "Securium Network Service Policy",
+  "type": "object"
+}

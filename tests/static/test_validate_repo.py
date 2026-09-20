@@ -49,6 +49,57 @@ class ValidatorTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        (Root / "policy" / "network-service-policy.schema.json").write_text(
+            json.dumps(
+                {
+                    "properties": {
+                        "policy_id": {"const": ValidateRepo.PolicyId},
+                        "schema_version": {"const": ValidateRepo.SchemaVersion},
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        MinimalPolicy = {
+            "policy_id": ValidateRepo.PolicyId,
+            "schema_version": ValidateRepo.SchemaVersion,
+            "services": [
+                {
+                    "activation_condition": None,
+                    "controls": {
+                        "build_flags": [],
+                        "features": [],
+                        "policy_hooks": [],
+                        "prefs": [],
+                        "provider_boundaries": [],
+                    },
+                    "credential_modes": ["NONE"],
+                    "data_categories": ["OTHER"],
+                    "destination_classes": ["OTHER_THIRD_PARTY_SERVICE"],
+                    "expected_destination_constraints": [],
+                    "initiator_class": "BROWSER_NATIVE_BACKGROUND",
+                    "name": "Synthetic service",
+                    "policy_state": "DENY",
+                    "policy_status": "APPROVED",
+                    "qualification_scenarios": [],
+                    "rationale": "Invented validator fixture.",
+                    "replacement_boundary": None,
+                    "service_id": "synthetic_service",
+                    "source_mapping_hints": {
+                        "source_paths": [],
+                        "traffic_annotation_ids": [],
+                    },
+                    "trigger": {
+                        "description": "The synthetic service runs.",
+                        "id": "synthetic_trigger",
+                    },
+                    "user_action": None,
+                }
+            ],
+        }
+        (Root / "policy" / "network-service-policy.json").write_text(
+            ValidateRepo.CanonicalJson(MinimalPolicy), encoding="utf-8"
+        )
 
     def RunValidator(self, Root: Path):
         Output = io.StringIO()
@@ -186,6 +237,18 @@ class ValidatorTests(unittest.TestCase):
 
         self.assertEqual(1, ExitCode)
         self.assertIn("SECURE_PROFILE_FOUNDATION_1.md", Output)
+
+    def test_invalid_network_service_policy_fails(self):
+        with tempfile.TemporaryDirectory() as TempDirectory:
+            Root = Path(TempDirectory)
+            self.CreateRepository(Root)
+            (Root / "policy" / "network-service-policy.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            ExitCode, Output = self.RunValidator(Root)
+
+        self.assertEqual(1, ExitCode)
+        self.assertIn("invalid network service policy", Output)
 
 
 if __name__ == "__main__":

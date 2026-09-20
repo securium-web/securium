@@ -27,6 +27,11 @@ jobs:
       - name: Run all offline static and detector tests
         run: python -m unittest discover -s tests/static -p "test_*.py"
 
+      - name: Validate canonical network service policy
+        run: >-
+          python scripts/network_policy.py validate
+          --policy policy/network-service-policy.json
+
       - name: Exercise candidate detector with an offline fixture
         run: >-
           python scripts/chromium_update.py check --json

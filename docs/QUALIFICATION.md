@@ -22,6 +22,12 @@ is still only `STATIC` metadata evidence. Synthetic materialization and patch
 engine tests also remain `STATIC`: they validate machinery, not a Chromium
 candidate.
 
+Network/service policy schema validation and synthetic policy-comparison tests
+also remain `STATIC`. They validate policy syntax, bounded taxonomies, adoption
+delta rules, and mismatch logic against invented evidence. They do not prove
+that Chromium implements the policy or that a runtime emitted only allowed
+traffic.
+
 ## PATCH-APPLY
 
 All downstream-owned files are integrated deterministically and every ordered
@@ -57,6 +63,14 @@ profile-relevant acquisitions block the secure-profile result. A Foundation 1
 pass establishes routing/lifecycle evidence only; it does not qualify external
 providers, migration, App-Bound composition, runtime relock, or the product as a
 whole.
+
+For network/service policy, this level requires a source inventory bound to the
+exact Chromium SHA, scenario-scoped observations from the real supported
+runtime, and deterministic comparison with the canonical policy. Unclassified
+native connections, observed denied or replaced-upstream services, unmet
+conditions or user actions, semantic overreach, and missing explicit
+`MUST_OBSERVE` behavior fail. Absence alone is not evidence unless a scenario
+declares `MUST_OBSERVE`.
 
 ## SECURITY-QUALIFIED
 

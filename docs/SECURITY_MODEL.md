@@ -44,11 +44,20 @@ machine from accessing secrets.
   OSCrypt acquisitions before secure-profile qualification can pass.
 - Unlock admits receiving Chromium processes and Encryptors into the trusted
   runtime boundary; discarding the PEK alone is not runtime relock.
+- Browser-native network capabilities and connections must map to approved
+  semantic service policy. New or materially changed unclassified native
+  capabilities block network qualification; hostnames alone do not establish
+  service identity.
 
 These are requirements, not implementation claims. Their precise meaning,
 platform behavior, recovery model, cryptographic choices, and test oracles must
 be established by a dedicated design review. Any change affecting these
 semantics requires explicit security review even if patches apply and tests pass.
+
+The network/service invariant does not promise traffic anonymity, whole-browser
+network silence, or control of destinations chosen by users, sites, or
+extensions. Foundation 0 is a static specification only; its scope and future
+runtime mismatch rules are defined in `docs/NETWORK_SERVICE_POLICY.md`.
 
 ## Experimental provider directions
 

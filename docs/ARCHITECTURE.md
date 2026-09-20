@@ -78,6 +78,21 @@ baseline. `docs/SECURE_PROFILE_FOUNDATION_1.md` specifies the next synthetic
 Chromium routing experiment. Neither document adds patches, runtime evidence,
 or qualification.
 
+## Network and service policy baseline
+
+`policy/network-service-policy.json` is the versioned product-policy artifact
+for browser-native service traffic. It identifies services semantically by
+initiator, trigger, destination class, data, credential, activation, and
+provider boundaries. It is not a hostname blocklist and is independent of
+revision-specific source paths.
+
+Privacy qualification keeps four artifacts separate: the canonical policy, a
+future exact-SHA Chromium capability inventory, future scenario-scoped runtime
+observations, and the resulting deterministic comparison. Foundation 0 includes
+only the first plus static tooling exercised against invented evidence. The
+complete boundary, taxonomies, initial decisions, and mismatch rules are in
+`docs/NETWORK_SERVICE_POLICY.md`.
+
 ## Update lifecycle
 
 1. Detect released Chromium Stable metadata and validate a candidate without
@@ -97,6 +112,13 @@ or qualification.
 For a secure-profile-capable adoption, the qualification worker must also
 mechanically inventory exact-SHA OSCrypt acquisitions, classify each relevant
 consumer, and block on new or changed unclassified profile-sensitive paths.
+
+For privacy qualification, the worker must mechanically inventory exact-SHA
+native network capabilities and compare semantic changes with the prior
+inventory and canonical service policy. New or materially changed unclassified
+native capabilities block the result. Source-only remapping does not rewrite
+product policy, and user-requested web, site, and extension traffic stays
+separately attributed.
 
 Codex repair belongs between a failed integration/qualification attempt and a
 fresh run of all affected gates. Update detection, repair, qualification,

@@ -14,6 +14,13 @@ if str(ScriptDirectory) not in sys.path:
     sys.path.insert(0, str(ScriptDirectory))
 
 from chromium_update import StateValidationError, ValidateProjectState  # noqa: E402
+from network_policy import (  # noqa: E402
+    CanonicalJson,
+    LoadPolicy,
+    PolicyId,
+    PolicyValidationError,
+    SchemaVersion,
+)
 from patch_qualify import EnumerateSafeTree, StageFailure  # noqa: E402
 
 
@@ -29,6 +36,7 @@ RequiredFiles = (
     "tests/security/README.md",
     "tests/static/test_chromium_update.py",
     "tests/static/test_patch_qualify.py",
+    "tests/static/test_network_policy.py",
     "tests/fixtures/chromiumdash/valid-stable-windows.json",
     "tests/fixtures/chromiumdash/malformed.json",
     "tests/fixtures/chromiumdash/missing-version.json",
@@ -59,9 +67,13 @@ RequiredFiles = (
     "tests/fixtures/patch-engine/repositories/malformed/patches/series",
     "tests/fixtures/patch-engine/repositories/malformed/patches/0001-malformed.patch",
     "tests/fixtures/patch-engine/repositories/unsafe-series/patches/series",
+    "tests/fixtures/network-policy/comparison-cases.json",
     "scripts/README.md",
     "scripts/chromium_update.py",
+    "scripts/network_policy.py",
     "scripts/patch_qualify.py",
+    "policy/network-service-policy.json",
+    "policy/network-service-policy.schema.json",
     "state/README.md",
     "state/upstream.example.json",
     "state/upstream.json",
@@ -70,6 +82,7 @@ RequiredFiles = (
     "docs/ARCHITECTURE.md",
     "docs/CANDIDATE_DETECTION.md",
     "docs/PATCH_QUALIFICATION.md",
+    "docs/NETWORK_SERVICE_POLICY.md",
     "docs/SECURE_PROFILE_ARCHITECTURE.md",
     "docs/SECURE_PROFILE_FOUNDATION_1.md",
     "docs/SECURITY_MODEL.md",
@@ -194,6 +207,29 @@ def ValidateDownstreamSource(Root: Path, Errors: List[str]) -> int:
     return len(Files)
 
 
+def ValidateNetworkPolicy(Root: Path, Errors: List[str]) -> int:
+    SchemaPath = Root / "policy" / "network-service-policy.schema.json"
+    PolicyPath = Root / "policy" / "network-service-policy.json"
+    if not SchemaPath.is_file() or not PolicyPath.is_file():
+        return 0
+    try:
+        Schema = json.loads(SchemaPath.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as Error:
+        Errors.append(f"invalid network service policy schema: {Error}")
+        return 0
+    Properties = Schema.get("properties", {}) if isinstance(Schema, dict) else {}
+    if Properties.get("schema_version", {}).get("const") != SchemaVersion:
+        Errors.append("network service policy schema must pin schema_version")
+    if Properties.get("policy_id", {}).get("const") != PolicyId:
+        Errors.append("network service policy schema must pin policy_id")
+    try:
+        Policy = LoadPolicy(PolicyPath, RequireCanonical=True)
+    except PolicyValidationError as Error:
+        Errors.append(f"invalid network service policy: {Error}")
+        return 0
+    return len(Policy["services"])
+
+
 def ValidateRequiredFiles(Root: Path, Errors: List[str]) -> None:
     for RelativePath in RequiredFiles:
         FullPath = Root / RelativePath
@@ -223,11 +259,13 @@ def Main(Arguments: Iterable[str] = ()) -> int:
     PatchCount = ValidatePatches(Root, Errors)
     JsonCount = ValidateState(Root, Errors)
     DownstreamFileCount = ValidateDownstreamSource(Root, Errors)
+    NetworkServiceCount = ValidateNetworkPolicy(Root, Errors)
 
     print(f"Validated repository: {Root}")
     print(f"Ordered patches: {PatchCount}")
     print(f"State JSON files: {JsonCount}")
     print(f"Downstream source files: {DownstreamFileCount}")
+    print(f"Network service policies: {NetworkServiceCount}")
     print(f"Required files checked: {len(RequiredFiles)}")
     if Errors:
         print(f"STATIC validation failed with {len(Errors)} error(s):")

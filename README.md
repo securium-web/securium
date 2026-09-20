@@ -26,6 +26,12 @@ Chromium routing experiment. It is not runtime-qualified. See
 `docs/SECURE_PROFILE_ARCHITECTURE.md` and
 `docs/SECURE_PROFILE_FOUNDATION_1.md`.
 
+Privacy Foundation 0 now defines the static network/service policy vocabulary,
+five initial high-level product decisions, and deterministic comparison rules
+for future exact-SHA inventories and runtime observations. It changes no
+Chromium behavior and provides no runtime network evidence. See
+`docs/NETWORK_SERVICE_POLICY.md`.
+
 ## Repository role
 
 This repository is the canonical downstream delta, not a Chromium source tree.
@@ -56,6 +62,12 @@ For future secure-profile revisions, each Stable adoption must also enumerate
 and classify the exact-SHA OSCrypt consumer surface. A changed or unclassified
 profile-relevant acquisition is a qualification blocker, not an invitation to
 route every consumer blindly.
+
+Future privacy qualification likewise requires an exact-SHA inventory of
+browser-native network capabilities. New or materially changed unclassified
+native capabilities fail; ordinary web, site, and extension traffic remains
+separately attributed rather than being treated as browser-native service
+traffic.
 
 ## Intended update flow
 
@@ -103,12 +115,13 @@ security release safe.
 - `patches/`: authoritative ordered Chromium patch series.
 - `src/`: substantial downstream-owned source material.
 - `state/`: separate candidate, qualified, and released revision state.
+- `policy/`: versioned canonical network/service policy and schema.
 - `scripts/`: deterministic repository tooling, candidate detection, and the
-  synthetic patch engine.
+  synthetic patch and network-policy comparison engines.
 - `tests/`: static, detector, and synthetic patch-engine checks now; real
   integration and security gates later.
-- `docs/`: repository and secure-profile architecture, the Foundation 1
-  experiment, security, upstream, patch, update, and qualification policy.
+- `docs/`: repository, secure-profile, network/service, security, upstream,
+  patch, update, and qualification policy.
 - `build/`, `updater/`, and `release/`: documented future boundaries.
 
 Run the currently supported gate with:
@@ -116,16 +129,17 @@ Run the currently supported gate with:
 ```powershell
 python scripts/validate_repo.py
 python -m unittest discover -s tests/static -p "test_*.py"
+python scripts/network_policy.py validate --policy policy/network-service-policy.json
 python scripts/chromium_update.py check --offline-fixture tests/fixtures/chromiumdash/valid-stable-windows.json
 python scripts/patch_qualify.py --request tests/fixtures/patch-engine/requests/valid.json --source tests/fixtures/patch-engine/sources/base --repository-root tests/fixtures/patch-engine/repositories/success --workspace artifacts/local-synthetic-check --source-kind synthetic-fixture --fixture-id local-check
 ```
 
-The first two commands are the required offline `STATIC` gate. The third
+The first three commands are the required offline `STATIC` gate. The fourth
 demonstrates a read-only offline candidate check. A live read-only check uses
 `python scripts/chromium_update.py check`; add `--json` for automation. Candidate
 state changes require the explicit `--write-candidate` option. See
 `docs/CANDIDATE_DETECTION.md` for decisions and authority boundaries.
-The final command creates explicitly synthetic evidence and must use a new,
+The last command creates explicitly synthetic evidence and must use a new,
 disposable workspace. See `docs/PATCH_QUALIFICATION.md`.
 
 ## Licensing boundary
