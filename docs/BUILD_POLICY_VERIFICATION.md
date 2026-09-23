@@ -32,7 +32,13 @@ python scripts/verify_build_policy.py `
   --evidence D:/Sandbox/Codex/Securium/Qualification/Compose-001/build-policy.json
 ```
 
-Use new evidence/output names on a retry. Exit 1 is failure; exit 2 and
+Use new evidence names on every retry. Output directories are new by default.
+Explicit `--reuse-output` permits regeneration only with verified real
+PATCH-APPLY evidence and an existing, identical canonical `args.gn`; inputs and
+incremental files are not overwritten by the collector. Redirected output
+paths are rejected. This permits build-path corrections without discarding
+compiled objects; GN and all effective-value checks still run again.
+Exit 1 is failure; exit 2 and
 `INCOMPLETE` mean the argument inventory matched but semantic/generated-target
 completion remains separate. `verify_foundation_1b.py` then checks the reviewed
 exact revision, unchanged real integration, current arguments, generated

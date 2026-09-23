@@ -138,6 +138,29 @@ class VerificationTests(unittest.TestCase):
             self.assertEqual(1, Result)
             self.assertEqual("existing evidence", Evidence.read_text())
 
+    def test_explicit_output_reuse_preserves_inputs_and_incremental_files(self):
+        with tempfile.TemporaryDirectory() as Directory:
+            Output = Path(Directory) / "out/Test"
+            Arguments = Verify.BuildArguments(self.Manifest)
+            Verify.PrepareOutput(Output, Arguments)
+            Stamp = (Output / "args.gn").stat().st_mtime_ns
+            (Output / "existing.obj").write_bytes(b"fixture")
+            Verify.PrepareOutput(Output, Arguments, Reuse=True)
+            self.assertEqual(Stamp, (Output / "args.gn").stat().st_mtime_ns)
+            self.assertEqual(b"fixture", (Output / "existing.obj").read_bytes())
+
+    def test_output_reuse_rejects_mismatch_and_implicit_overwrite(self):
+        with tempfile.TemporaryDirectory() as Directory:
+            Output = Path(Directory) / "out/Test"
+            Arguments = Verify.BuildArguments(self.Manifest)
+            Verify.PrepareOutput(Output, Arguments)
+            with self.assertRaises(Verify.VerificationError):
+                Verify.PrepareOutput(Output, Arguments)
+            (Output / "args.gn").write_text('enable_compose = true\n')
+            with self.assertRaises(Verify.VerificationError):
+                Verify.PrepareOutput(Output, Arguments, Reuse=True)
+            self.assertEqual('enable_compose = true\n', (Output / "args.gn").read_text())
+
     def test_malformed_request_retains_failed_report_without_input(self):
         with tempfile.TemporaryDirectory() as Directory:
             Request = Path(Directory) / "request.json"

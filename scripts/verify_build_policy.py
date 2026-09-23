@@ -179,6 +179,20 @@ def CheckSource(Source, Sha, Commands):
     return Head
 
 
+def PrepareOutput(Output, Arguments, Reuse=False):
+    from patch_qualify import IsReparsePoint
+    if any(IsReparsePoint(Item) for Item in (Output.parent, Output, Output / "args.gn")):
+        raise VerificationError("GN output must not be redirected")
+    if Reuse:
+        if not Output.is_dir() or (Output / "args.gn").read_text(encoding="utf-8") != Arguments:
+            raise VerificationError("Reused output must have identical canonical args.gn")
+        return
+    if Output.exists():
+        raise VerificationError("GN output must be new unless reuse is explicit")
+    Output.mkdir(parents=True)
+    (Output / "args.gn").write_text(Arguments, encoding="utf-8", newline="\n")
+
+
 def Collect(Options, Report):
     Manifest = LoadManifest(Options.manifest, Options.network_policy, RequireCanonical=True)
     Request = json.loads(Options.request.read_text(encoding="utf-8"))
@@ -223,16 +237,17 @@ def Collect(Options, Report):
     if not re.fullmatch(r"[A-Za-z0-9_-]+", Options.output_name):
         raise VerificationError("output name must contain only letters, digits, dash or underscore")
     Output = Source / "out" / Options.output_name
-    if Output.exists() or Output.is_symlink() or (Source / "out").is_symlink():
-        raise VerificationError("GN output must be new and not redirected")
+    Reuse = getattr(Options, "reuse_output", False)
+    if Reuse and not PatchEvidence:
+        raise VerificationError("Output reuse requires verified real PATCH-APPLY evidence")
     Gn = Options.gn.resolve()
     if Gn.suffix.lower() != ".exe" or not Gn.is_file():
         raise VerificationError("provide the real gn.exe from the synced Chromium toolchain")
     Report["gn_sha256"] = Digest(Gn.read_bytes())
     Report["gn_version"] = Run([Gn, "--version"], Source, Commands).strip()
-    Output.mkdir(parents=True)
     Arguments = BuildArguments(Manifest)
-    (Output / "args.gn").write_text(Arguments, encoding="utf-8", newline="\n")
+    PrepareOutput(Output, Arguments, Reuse)
+    Report["output_reused"] = Reuse
     Report["args_gn"] = Arguments
     Report["output"] = str(Output)
     RelativeOutput = Output.relative_to(Source).as_posix()
@@ -269,6 +284,8 @@ def Main(Arguments=None):
     Parser.add_argument("--patch-evidence", type=Path,
                         help="Bind to a verified real PATCH-APPLY integration instead of a clean root")
     Parser.add_argument("--output-name", default="SecuriumPolicy")
+    Parser.add_argument("--reuse-output", action="store_true",
+                        help="Regenerate an existing real integration output with identical canonical args")
     Parser.add_argument("--manifest", type=Path, default=Root / "policy/build-policy.json")
     Parser.add_argument("--network-policy", type=Path,
                         default=Root / "policy/network-service-policy.json")

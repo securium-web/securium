@@ -72,8 +72,8 @@ and UI; their presence is not full product inclusion or proof of no traffic.
 
 ## Current execution status
 
-**GN PASS; Foundation 1B build-only PASS. COMPILE started, INCOMPLETE.**
-Fresh output: `Qualification/Compose-001/integration/out/SecuriumWinX64`.
+**GN PASS; Foundation 1B build-only PASS. First COMPILE attempt FAIL.**
+Original output: `Qualification/Compose-001/integration/out/SecuriumWinX64`.
 `build-policy.json` records the successful GN command and ten matching values;
 `foundation-1b-final.json` completes the generated-header/target/source review
 and binds the canonical patch bytes to the integrated series. The
@@ -136,12 +136,40 @@ compilation processes were observed. No completed Chromium build is claimed.
 Worker `Qualification/Compose-001/compile.json` records source commit, patch
 digests, manifest/effective settings, toolchain, command, PID, timestamps and
 eventual exit status/duration. `compile.log` retains compiler/linker output.
-The current result is **INCOMPLETE**; elapsed time is not completion evidence.
-No compile failure or source correction had occurred at this recorded point.
+The first attempt ended **2026-09-23 09:36:52 UTC**, exit 1, after **463.250
+seconds** (7 minutes 43 seconds). Siso recorded 5,978 completed steps and one
+failed action; it did not finish the Chromium target.
 Follow-up documentation commits do not change the recorded build input commit.
 
-Next task: collect the running build's result and inspect any compiler/linker
-failure before changing source. Preserve this incremental output. Narrow
+## Windows path-length failure and narrow correction
+
+The failing action was
+`//third_party/blink/renderer/bindings:generate_bindings_union`. Bundled Python
+raised `FileNotFoundError` while opening a generated header for writing through
+`web_idl/file_io.py:45`. Its parent directory existed, but the absolute path
+was 265 characters and the worker's `LongPathsEnabled` setting was zero.
+The filename ends in
+`v8_union_cssimagevalue_htmlcanvaselement_htmlimageelement_htmlvideoelement_imagebitmap_offscreencanvas_svgimageelement_videoframe.h`.
+This is a Windows build-path limitation, not a Compose/Glic source dependency
+or compiler/linker diagnostic. No production source, patch, privacy setting,
+test expectation or machine-wide registry setting was changed.
+
+The existing output directory was moved within the same verified task-owned
+`out/` parent to `out/S`, reducing the failing path to 253 characters and
+preserving all incremental files. The original failure evidence/log and a copy
+of the failed command remain in `Qualification/Compose-001/`. Build-policy
+collection now supports explicit `--reuse-output` only for an unchanged real
+integration and identical canonical arguments. GN generation/effective-value
+comparison is rerun, not skipped, and new evidence files preserve prior results.
+GN and Foundation 1B passed again in `build-policy-002.json` and
+`foundation-1b-002.json`; unchanged patch integration hashes were checked before
+and after. The focused Blink union retry **passed in 25.84 seconds** (eight
+actions), including the previously failing header, without changing its source.
+Its log is `blink-union-retry.log`. All 107 offline static tests and existing
+repository/build/network validators passed after the collector reuse change.
+
+Next task: resume the incremental compile with `autoninja -C out/S -j 4 chrome`.
+Collect its result and inspect any further compiler/linker failure. Narrow
 Compose/build-policy corrections must rerun the affected gates; unrelated
 production, privacy or test-boundary changes require review. Do not advance
 TEST, runtime, secure-profile, packaging or release work from this run.
