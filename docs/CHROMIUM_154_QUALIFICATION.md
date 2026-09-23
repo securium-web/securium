@@ -72,7 +72,7 @@ and UI; their presence is not full product inclusion or proof of no traffic.
 
 ## Current execution status
 
-**GN PASS; Foundation 1B build-only PASS. First COMPILE attempt FAIL.**
+**GN PASS; Foundation 1B build-only PASS. COMPILE retry running, INCOMPLETE.**
 Original output: `Qualification/Compose-001/integration/out/SecuriumWinX64`.
 `build-policy.json` records the successful GN command and ten matching values;
 `foundation-1b-final.json` completes the generated-header/target/source review
@@ -168,8 +168,19 @@ actions), including the previously failing header, without changing its source.
 Its log is `blink-union-retry.log`. All 107 offline static tests and existing
 repository/build/network validators passed after the collector reuse change.
 
-Next task: resume the incremental compile with `autoninja -C out/S -j 4 chrome`.
-Collect its result and inspect any further compiler/linker failure. Narrow
+The full compile resumed at **2026-09-23 09:43:31 UTC** from Securium commit
+`cdac995bd6e48d8255d94e88df5000fb706fbfba`, repository tree
+`fd3efcd1b0f30bca4ffeb8148d5d412126cb8b8a`, with
+`autoninja -C out/S -j 4 chrome`. That snapshot passed all 107 tests and static
+validators on the worker; [hosted static CI also passed](https://github.com/securium-web/securium/actions/runs/35844611553).
+The retry uses unchanged Chromium/patch/manifest/toolchain inputs and fresh
+configuration evidence. `compile-002.json` and `compile-002.log` record it
+separately from the failed first attempt. It is currently **INCOMPLETE**, with
+no completed duration or exit status. Existing outputs/caches were preserved;
+GN/Siso determine which steps need regeneration after the output-path change.
+
+Next task: collect the running retry's result and inspect any further failure.
+Narrow
 Compose/build-policy corrections must rerun the affected gates; unrelated
 production, privacy or test-boundary changes require review. Do not advance
 TEST, runtime, secure-profile, packaging or release work from this run.
