@@ -30,17 +30,6 @@
       "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
     },
     {
-      "classification": "PRODUCT_CHOICE",
-      "expected": false,
-      "name": "enable_lens_desktop",
-      "rationale": "Lens desktop integration is not part of the intended Securium product baseline.",
-      "related_service_ids": [],
-      "requirement": "EXACT_VALUE",
-      "requires_real_source_verification": true,
-      "stability": "PREFERRED",
-      "verification_status": "PENDING_REAL_SOURCE_VERIFICATION"
-    },
-    {
       "classification": "EXPLICIT_DEFENSE",
       "expected": false,
       "name": "enable_rlz",

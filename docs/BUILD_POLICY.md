@@ -73,7 +73,15 @@ The manifest encodes these groups without claiming the symbols currently exist:
 | No Chrome browser updater integration | `enable_updater=false`; `enable_update_notifications=false` | `EXPLICIT_DEFENSE` |
 | No RLZ integration | `enable_rlz=false` | `EXPLICIT_DEFENSE` |
 | Retain Standard Safe Browsing intent | `safe_browsing_mode=1` | `REQUIRED_INVARIANT` |
-| Product exclusions | `enable_compose=false`; `enable_lens_desktop=false` | `PRODUCT_CHOICE` / `PREFERRED` |
+| Product exclusions | `enable_compose=false` | `PRODUCT_CHOICE` / `PREFERRED` |
+
+Lens may remain compiled, including infrastructure shared with other Chromium
+features. `enable_lens_desktop=false` is no longer a required setting; GN may
+use its upstream default. Lens is governed by the canonical `lens` service's
+`USER_TRIGGERED_SERVICE` / `USER_INITIATED` policy, with clear disclosure before
+visual/page context is sent to Google. Background or silent context transmission
+is prohibited. This decision does not change Compose, credentials, or imply
+runtime Lens qualification. No Chromium refactor to compile Lens out is planned.
 
 No speculative `enable_glic` setting is present. The static validator rejects
 that name rather than treating an unverified audit claim as a supported GN
@@ -110,8 +118,8 @@ service policy:
 - `safe_browsing_mode=1` supports the retained `safe_browsing_standard` intent;
 - disabled global credentials support the credential boundary but do not prove
   browser sign-in or service inactivity; and
-- Compose and Lens settings are product choices, not new service-policy
-  approvals.
+- Compose remains an independent product exclusion; Lens has its own explicit
+  user-initiated service approval in the network policy.
 
 The validator requires every referenced service identifier to be approved in
 `policy/network-service-policy.json`. Neither the manifest nor a successful GN
@@ -143,6 +151,9 @@ Foundation 1A does not:
 - advance candidate, qualified, or released state.
 
 ## Foundation 1B handoff
+
+Work in progress, worker findings, collector usage and remaining gates are
+recorded in `docs/BUILD_POLICY_VERIFICATION.md`. Foundation 1B has not passed.
 
 The exact next task is **Privacy Foundation 1B — Exact-SHA Build Policy
 Verification** on a Chromium-capable worker. It must:

@@ -147,6 +147,66 @@
         "NONE"
       ],
       "data_categories": [
+        "NETWORK_ADDRESS",
+        "PAGE_CONTENT",
+        "SEARCH_INPUT",
+        "URL"
+      ],
+      "destination_classes": [
+        "GOOGLE_OWNED_SERVICE"
+      ],
+      "expected_destination_constraints": [],
+      "initiator_class": "USER_TRIGGERED_SERVICE",
+      "name": "Lens",
+      "policy_state": "USER_INITIATED",
+      "policy_status": "APPROVED",
+      "qualification_scenarios": [
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "lens_background_context"
+        },
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "lens_cold_start"
+        },
+        {
+          "expectation": "MUST_OBSERVE",
+          "scenario_id": "lens_explicit_invocation"
+        },
+        {
+          "expectation": "MUST_NOT_OBSERVE",
+          "scenario_id": "lens_idle_browsing"
+        }
+      ],
+      "rationale": "Lens may remain compiled with shared Chromium infrastructure. Only explicit user invocation after clear disclosure permits visual/page context to leave Securium's local security boundary and be sent to Google. Background or silent context transmission is prohibited. This is intended policy, not runtime qualification.",
+      "replacement_boundary": null,
+      "service_id": "lens",
+      "source_mapping_hints": {
+        "source_paths": [],
+        "traffic_annotation_ids": []
+      },
+      "trigger": {
+        "description": "The user explicitly requests a Lens operation for the disclosed visual/page context.",
+        "id": "lens_invocation"
+      },
+      "user_action": {
+        "description": "The user invokes Lens after clear disclosure that visual/page context may leave Securium's local security boundary and be sent to Google; the action authorizes only that operation, not later background transfers.",
+        "id": "invoke_lens_with_disclosure"
+      }
+    },
+    {
+      "activation_condition": null,
+      "controls": {
+        "build_flags": [],
+        "features": [],
+        "policy_hooks": [],
+        "prefs": [],
+        "provider_boundaries": []
+      },
+      "credential_modes": [
+        "NONE"
+      ],
+      "data_categories": [
         "CLIENT_VERSION",
         "DIAGNOSTIC_DATA",
         "OS_PLATFORM"

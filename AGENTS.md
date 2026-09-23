@@ -89,8 +89,9 @@ Use only these ordered evidence labels:
 `STATIC`, `PATCH-APPLY`, `COMPILE`, `TEST`, `RUNTIME`,
 `SECURITY-QUALIFIED`, `RELEASE-QUALIFIED`.
 
-This repository currently supports only `STATIC`. Never claim a higher level
-without performing the requirements in `docs/QUALIFICATION.md`. Do not mark
+Real exact-SHA `PATCH-APPLY` is supported alongside `STATIC` tooling tests.
+Never claim a higher level without performing the requirements in
+`docs/QUALIFICATION.md`. Do not mark
 TODO gates as passing, invent CI results, claim a Chromium version is supported
 without qualification, or alter canonical release state unless the documented
 qualification pipeline succeeded.

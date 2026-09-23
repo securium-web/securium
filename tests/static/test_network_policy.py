@@ -185,13 +185,39 @@ def MakeObservation(Service: dict, Case: dict) -> dict:
 class NetworkPolicyTests(unittest.TestCase):
     def test_canonical_policy_and_schema_are_valid(self) -> None:
         Policy = NetworkPolicy.LoadPolicy(PolicyPath, RequireCanonical=True)
-        self.assertEqual(5, len(Policy["services"]))
+        self.assertEqual(6, len(Policy["services"]))
         Schema = json.loads(SchemaPath.read_text(encoding="utf-8"))
         self.assertEqual(
             NetworkPolicy.PolicyId,
             Schema["properties"]["policy_id"]["const"],
         )
         self.assertEqual(1, Schema["properties"]["schema_version"]["const"])
+
+    def test_lens_requires_disclosed_action_and_rejects_background(self) -> None:
+        Policy = NetworkPolicy.LoadPolicy(PolicyPath, RequireCanonical=True)
+        Lens = NetworkPolicy.ServiceIndex(Policy)["lens"]
+        Observation = MakeObservation(Lens, {"service_template": "USER_INITIATED"})
+        Observation["scenario_id"] = "lens_explicit_invocation"
+        Connection = Observation["connections"][0]
+        Connection["data_categories"] = ["PAGE_CONTENT"]
+        Connection["trigger_id"] = Lens["trigger"]["id"]
+        Observation["user_actions"] = [Lens["user_action"]["id"]]
+
+        def Compare():
+            return NetworkPolicy.ComparePolicyEvidence(
+                Policy, MakeInventory([], "b"), ObservationData=[Observation])
+
+        self.assertEqual("PASS", Compare()["result"])
+        Observation["user_actions"] = []
+        self.assertIn("USER_ACTION_NOT_OBSERVED",
+                      {Issue["code"] for Issue in Compare()["issues"]})
+        Observation["user_actions"] = [Lens["user_action"]["id"]]
+        Connection["initiator_class"] = "BROWSER_NATIVE_BACKGROUND"
+        self.assertEqual("FAIL", Compare()["result"])
+        Connection["initiator_class"] = Lens["initiator_class"]
+        for Scenario in ("lens_background_context", "lens_cold_start", "lens_idle_browsing"):
+            Observation["scenario_id"] = Scenario
+            self.assertEqual("FAIL", Compare()["result"])
 
     def test_cli_validates_canonical_policy(self) -> None:
         Result = subprocess.run(

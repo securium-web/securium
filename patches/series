@@ -1,1 +1,2 @@
-# Ordered Chromium Secure patches. No production patches exist yet.
+# Ordered Chromium Secure downstream patches.
+0001-guard-compose-build-dependencies.patch

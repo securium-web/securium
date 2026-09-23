@@ -27,6 +27,22 @@ python scripts/build_policy.py
 It does not inspect Chromium, run GN, resolve environment overrides, or claim
 runtime behavior. See `docs/BUILD_POLICY.md`.
 
+`verify_build_policy.py` is the work-in-progress Windows exact-SHA GN evidence
+collector. It fails missing/mismatched arguments and detected environment
+overrides, and never promotes qualification state. A GN match remains
+`INCOMPLETE` pending effective-target and credential semantic review. See
+`docs/BUILD_POLICY_VERIFICATION.md` for historical attempts. The optional
+`--patch-evidence` argument binds collection to an unchanged real integration.
+`verify_foundation_1b.py --build-evidence <json> --patch-evidence <json>
+--evidence <new-json>` completes the separately reviewed exact-SHA build-only
+gate after generated headers exist. It does not certify runtime credentials
+or network behavior; see `docs/CHROMIUM_154_QUALIFICATION.md`.
+
+`real_patch_qualify.py` uses the same strict engine with verified clean
+Chromium Git identity and a new detached integration worktree. Its evidence is
+explicitly nonsynthetic. See `docs/PATCH_QUALIFICATION.md` for arguments,
+failure boundaries and separation from offline fixtures.
+
 `chromium_update.py` separates live fetching from offline parsing, validation,
 comparison, and state writing. It is read-only unless `--write-candidate` is
 explicitly supplied:

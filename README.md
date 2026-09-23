@@ -11,9 +11,9 @@ web storage, profile metadata, every Chromium database, or an unlocked browser
 from compromised trusted processes. The secure-profile architecture is an
 experimental candidate and no production browser release exists yet.
 
-> **Status: static control plane / architecture only**
+> **Status: first Chromium compatibility patch adopted; build verification in progress**
 >
-> **Qualification level: STATIC ONLY**
+> **Highest completed evidence: exact-SHA PATCH-APPLY**
 >
 > **No production security patches exist yet.**
 >
@@ -27,15 +27,24 @@ Chromium routing experiment. It is not runtime-qualified. See
 `docs/SECURE_PROFILE_FOUNDATION_1.md`.
 
 Privacy Foundation 0 now defines the static network/service policy vocabulary,
-five initial high-level product decisions, and deterministic comparison rules
+six high-level product decisions, including explicitly user-initiated Lens,
+and deterministic comparison rules
 for future exact-SHA inventories and runtime observations. It changes no
 Chromium behavior and provides no runtime network evidence. See
 `docs/NETWORK_SERVICE_POLICY.md`.
 
 Privacy Foundation 1A now defines the intended unbranded build-policy manifest,
 including an explicit global-credential boundary and a future effective-value
-verification contract. All settings remain pending real Chromium source
-verification; no GN generation or build occurred. See `docs/BUILD_POLICY.md`.
+verification contract. Per-revision results are recorded separately from the
+intended manifest. See `docs/BUILD_POLICY.md`.
+
+Privacy Foundation 1B is in progress: an exact-SHA GN evidence collector and
+offline tests exist, and the pinned root source checkout and toolchain setup
+are complete on the Windows worker, including dependency sync and hooks.
+Lens may remain compiled under its disclosed user-initiated service policy.
+The first compatibility patch preserves `enable_compose=false` with narrow
+build guards. See `docs/CHROMIUM_154_QUALIFICATION.md` for current exact-SHA
+results and `docs/BUILD_POLICY_VERIFICATION.md` for historical investigation.
 
 ## Repository role
 

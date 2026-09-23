@@ -36,7 +36,10 @@ class BuildPolicyTests(unittest.TestCase):
             NetworkPolicyPath=NetworkPolicyPath,
             RequireCanonical=True,
         )
-        self.assertEqual(11, len(Manifest["settings"]))
+        self.assertEqual(10, len(Manifest["settings"]))
+        Settings = {Item["name"]: Item for Item in Manifest["settings"]}
+        self.assertNotIn("enable_lens_desktop", Settings)
+        self.assertIs(Settings["enable_compose"]["expected"], False)
         Schema = json.loads(SchemaPath.read_text(encoding="utf-8"))
         self.assertEqual(
             BuildPolicy.ManifestId,

@@ -192,6 +192,38 @@ Foundation 0 establishes only these high-level product decisions:
 | Safe Browsing Standard Protection | `ALLOW_BACKGROUND` | Retained at a high level; exact requests and credentials require exact-SHA qualification. |
 | Chrome browser updater | `DENY` | Browser self-update is outside the downstream update model. |
 | Component Updater | `ALLOW_BACKGROUND` | Retained at a high level for security components; exact providers require qualification. |
+| Lens | `USER_INITIATED` | Explicit invocation after disclosure permits context transfer to Google; silent/background context transfer is prohibited. |
+
+### Lens product decision
+
+Lens and shared infrastructure may remain compiled to preserve Chromium
+functionality and minimize downstream patches. The canonical `lens` service
+uses `USER_TRIGGERED_SERVICE` / `USER_INITIATED`; it is not ordinary web traffic.
+Before invocation, clearly disclose: **Using Lens may send visual and page
+context to Google, outside Securium's local security boundary.** This is a
+required user-facing disclosure, not a claim that the UI implements it today.
+
+`PAGE_CONTENT` includes screenshots, selected images and visual/page context;
+`SEARCH_INPUT` covers the user's Lens query. The declared action authorizes
+only the requested Lens operation. Opening a page, idle browsing, prior use,
+or enabling a shared feature is not authorization to transmit context silently.
+Shared infrastructure is not a blanket network allowance. Background/silent
+context transmission must fail future qualification, including after earlier
+Lens use; observations must be scoped to the particular invocation, not a
+session-wide action marker.
+
+Qualification must observe a disclosed, explicitly invoked operation and test
+cold start, idle browsing, background context collection, cancellation and
+post-operation activity. Verify disclosure timing and causal attribution from
+real UI/network evidence before recording `invoke_lens_with_disclosure`.
+Synthetic action markers cannot prove consent or runtime behavior. The current
+comparator checks supplied scenario evidence, not UI implementation or causality.
+
+The initial Lens credential scope is `NONE`; cookies, OAuth, service credentials
+or additional data categories found in the exact-SHA inventory require separate
+review. This does not approve global Google credentials or promise credential-free
+Lens works. Source mappings and concrete controls remain unqualified. Compose
+is a separate decision and remains excluded by the build manifest.
 
 Ordinary `USER_REQUESTED_WEB` traffic is outside the native service policy.
 `SITE_DIRECTED` and `EXTENSION_DIRECTED` traffic is separately attributed and

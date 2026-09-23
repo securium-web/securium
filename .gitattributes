@@ -1,0 +1,3 @@
+# Synthetic patch inputs must retain matching bytes on Windows and Linux.
+tests/fixtures/patch-engine/** text eol=lf
+patches/** text eol=lf

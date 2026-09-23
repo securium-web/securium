@@ -88,6 +88,7 @@ reviewed, and security-semantic changes receive explicit human approval.
 Packaging, artifact hashes, signing, updater metadata, provenance, rollback
 policy, and release authorization all validate for the candidate.
 
-The repository currently supports and claims **STATIC only**. No Chromium SHA,
-build, runtime behavior, security property, platform, updater, or release is
-qualified.
+The first real exact-SHA `PATCH-APPLY` result is recorded in
+`docs/CHROMIUM_154_QUALIFICATION.md`. Synthetic CI remains `STATIC`.
+Build-policy/GN checks are configuration subgates, not extra evidence levels.
+No runtime behavior, security property, updater or release is qualified.

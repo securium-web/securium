@@ -7,9 +7,23 @@ and patch application against invented source fixtures. A synthetic PASS means
 the engine copied, materialized, and applied the declared inputs successfully.
 It does **not** mean any Securium patch applies to any Chromium revision.
 
-Project qualification remains `STATIC`. Real `PATCH-APPLY` will require a
-future worker to verify an actual Chromium Git HEAD equals the candidate SHA and
-then run the same materialization and patch sequence against that checkout.
+`scripts/real_patch_qualify.py` adds a separate real-source adapter. It verifies
+the official Chromium origin URL, exact Git HEAD and version, a clean nonsparse
+root, and creates a detached disposable worktree. It reuses this engine's patch
+inspection, collision-safe materialization and strict ordered application.
+Real evidence uses `synthetic=false`, `engine_validation=REAL_CHROMIUM` and a
+separate validator; it cannot pass the synthetic evidence validator. The
+record includes the upstream tree identity, patch/content digests, timestamps,
+and resulting diff/file hashes. Follow-on gates reject changed integration
+content or unexpected untracked files. Origin verification checks configured
+identity, not a separate cryptographic attestation of the hosting service.
+
+Run `real_patch_qualify.py --request <request.json> --source <clean-chromium-root>
+--repository-root <securium-root> --workspace <new-disposable-directory>`.
+Exit zero means real PATCH-APPLY passed. It does not modify canonical release
+state. Worktree root cleanliness does not certify dependencies; dependency
+hydration/provenance and all build checks remain separate. The synthetic
+pipeline below remains available unchanged for offline tooling validation.
 
 ## Pipeline
 

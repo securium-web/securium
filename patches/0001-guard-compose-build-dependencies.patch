@@ -1,0 +1,192 @@
+Subject: Guard Compose-only dependencies when enable_compose=false
+
+Baseline: Chromium 154.0.8037.58
+Commit: a654841425914cbb703a2931e07b70a83aedbafd
+
+Follow existing enable_compose and ENABLE_COMPOSE conventions. The Glic
+interactive test needs Compose eligibility before FRE; guard that scenario
+only, retaining the mixed source and all unrelated tests. No runtime or
+service-policy changes. See docs/COMPOSE_POLICY_REVIEW.md for the boundary.
+
+diff --git a/chrome/browser/glic/BUILD.gn b/chrome/browser/glic/BUILD.gn
+index 68a41caa43..cfa2faaac5 100644
+--- a/chrome/browser/glic/BUILD.gn
++++ b/chrome/browser/glic/BUILD.gn
+@@ -5,6 +5,7 @@
+ import("//build/config/gclient_args.gni")
+ import("//build/config/ozone.gni")
+ import("//chrome/common/features.gni")
++import("//components/compose/features.gni")
+ import("//components/enterprise/buildflags/buildflags.gni")
+ import("//components/guest_view/buildflags/buildflags.gni")
+ import("//mojo/public/tools/bindings/mojom.gni")
+@@ -1109,7 +1110,6 @@ if (!is_android) {
+       "//chrome/browser/actor:tools_test_support",
+       "//chrome/browser/autofill",
+       "//chrome/browser/background/glic",
+-      "//chrome/browser/compose",
+       "//chrome/browser/contextual_tasks:ui",
+       "//chrome/browser/devtools:test_support",
+       "//chrome/browser/download:test_support",
+@@ -1136,10 +1136,14 @@ if (!is_android) {
+       "//chrome/test:test_support",
+       "//chrome/test/user_education:impl",
+       "//components/autofill/core/browser/actor:test_support",
++      "//components/compose:buildflags",
+       "//components/optimization_guide/core",
+       "//content/test:test_support",
+       "//ui/display:test_support",
+     ]
++    if (enable_compose) {
++      deps += [ "//chrome/browser/compose" ]
++    }
+     if (enable_pdf) {
+       deps += [
+         "//chrome/browser/pdf:pdf_extension_test_utils",
+diff --git a/chrome/browser/glic/glic_settings_util_interactive_uitest.cc b/chrome/browser/glic/glic_settings_util_interactive_uitest.cc
+index e9efe1c206..08e80d017c 100644
+--- a/chrome/browser/glic/glic_settings_util_interactive_uitest.cc
++++ b/chrome/browser/glic/glic_settings_util_interactive_uitest.cc
+@@ -5,7 +5,6 @@
+ #include "chrome/browser/glic/glic_settings_util.h"
+ 
+ #include "chrome/browser/browser_process.h"
+-#include "chrome/browser/compose/compose_enabling.h"
+ #include "chrome/browser/glic/glic_pref_names.h"
+ #include "chrome/browser/glic/test_support/interactive_glic_test.h"
+ #include "chrome/browser/profiles/profile.h"
+@@ -15,11 +14,16 @@
+ #include "chrome/common/chrome_features.h"
+ #include "chrome/common/webui_url_constants.h"
+ #include "chrome/test/user_education/interactive_feature_promo_test.h"
++#include "components/compose/buildflags.h"
+ #include "components/tabs/public/tab_interface.h"
+ #include "components/user_education/common/user_education_features.h"
+ #include "content/public/test/browser_test.h"
+ #include "ui/base/interaction/element_tracker.h"
+ 
++#if BUILDFLAG(ENABLE_COMPOSE)
++#include "chrome/browser/compose/compose_enabling.h"
++#endif
++
+ namespace {
+ DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kFirstTab);
+ DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kSecondTab);
+@@ -29,8 +33,10 @@ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kOsToggleIsVisible);
+ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kKeyboardShortcutIsVisible);
+ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kBubbleIsVisible);
+ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kBubbleIsHidden);
++#if BUILDFLAG(ENABLE_COMPOSE)
+ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kAiPageIndexIsVisible);
+ DEFINE_LOCAL_CUSTOM_ELEMENT_EVENT_TYPE(kGlicSectionIsVisible);
++#endif
+ 
+ auto ElementIsVisibleStateChange(
+     ui::CustomElementEventType event,
+@@ -202,6 +208,8 @@ IN_PROC_BROWSER_TEST_F(GlicSettingsUtilUiTest,
+           kSettingsTab, chrome::GetSettingsUrl(chrome::kGlicSettingsSubpage)));
+ }
+ 
++#if BUILDFLAG(ENABLE_COMPOSE)
++// This scenario needs Compose to keep AI Settings visible before Glic's FRE.
+ IN_PROC_BROWSER_TEST_F(GlicSettingsUtilUiTest,
+                        RefreshSettingsAfterAcceptingFRE) {
+   auto scoped_compose_enabled =
+@@ -230,3 +238,4 @@ IN_PROC_BROWSER_TEST_F(GlicSettingsUtilUiTest,
+           kFirstTab,
+           ElementIsVisibleStateChange(kGlicSectionIsVisible, kPathToGlicPage)));
+ }
++#endif  // BUILDFLAG(ENABLE_COMPOSE)
+diff --git a/chrome/browser/renderer_context_menu/BUILD.gn b/chrome/browser/renderer_context_menu/BUILD.gn
+index b4adeb3db0..48f982f303 100644
+--- a/chrome/browser/renderer_context_menu/BUILD.gn
++++ b/chrome/browser/renderer_context_menu/BUILD.gn
+@@ -2,6 +2,7 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
++import("//components/compose/features.gni")
+ import("//components/spellcheck/spellcheck_build_features.gni")
+ import("//extensions/buildflags/buildflags.gni")
+ import("//pdf/features.gni")
+@@ -119,7 +120,6 @@ source_set("impl") {
+       "//chrome/browser/apps/app_service",
+       "//chrome/browser/apps/platform_apps",
+       "//chrome/browser/autocomplete",
+-      "//chrome/browser/compose",
+       "//chrome/browser/context_hub",
+       "//chrome/browser/custom_handlers",
+       "//chrome/browser/devtools",
+@@ -188,6 +188,9 @@ source_set("impl") {
+       "//ui/menus",
+       "//url",
+     ]
++    if (enable_compose) {
++      deps += [ "//chrome/browser/compose" ]
++    }
+ 
+     if (enable_print_preview) {
+       deps += [ "//chrome/browser/printing" ]
+@@ -274,10 +277,10 @@ static_library("test_support") {
+       "render_view_context_menu_test_util.cc",
+     ]
+     public_deps += [ "//extensions/buildflags" ]
+-    deps += [
+-      "//chrome/browser/compose",
+-      "//chrome/browser/indigo",
+-    ]
++    deps += [ "//chrome/browser/indigo" ]
++    if (enable_compose) {
++      deps += [ "//chrome/browser/compose" ]
++    }
+   }
+ 
+   if (is_chromeos) {
+@@ -379,7 +382,6 @@ if (!is_android) {
+       ":test_support",
+       "//base/test:test_support",
+       "//chrome/browser",
+-      "//chrome/browser/compose:test_support",
+       "//chrome/browser/context_hub",
+       "//chrome/browser/devtools",
+       "//chrome/browser/enterprise/data_controls:test_support",
+@@ -415,6 +417,9 @@ if (!is_android) {
+       "//ui/events:test_support",
+       "//url",
+     ]
++    if (enable_compose) {
++      deps += [ "//chrome/browser/compose:test_support" ]
++    }
+ 
+     if (is_linux || is_chromeos || is_win) {
+       sources += [
+diff --git a/chrome/browser/ui/webui/settings/BUILD.gn b/chrome/browser/ui/webui/settings/BUILD.gn
+index 9c9878f645..be607ad93b 100644
+--- a/chrome/browser/ui/webui/settings/BUILD.gn
++++ b/chrome/browser/ui/webui/settings/BUILD.gn
+@@ -4,6 +4,7 @@
+ 
+ import("//build/config/ozone.gni")
+ import("//build/config/ui.gni")
++import("//components/compose/features.gni")
+ import("//components/signin/features.gni")
+ 
+ assert(is_win || is_mac || is_linux || is_chromeos)
+@@ -201,7 +202,6 @@ source_set("impl") {
+     "//chrome/browser/bluetooth",
+     "//chrome/browser/browsing_data",
+     "//chrome/browser/browsing_data:constants",
+-    "//chrome/browser/compose",
+     "//chrome/browser/content_settings",
+     "//chrome/browser/content_settings:content_settings_util",
+     "//chrome/browser/contextual_tasks",
+@@ -328,6 +328,9 @@ source_set("impl") {
+     "//ui/webui/tracked_element",
+     "//v8:v8_version",
+   ]
++  if (enable_compose) {
++    deps += [ "//chrome/browser/compose" ]
++  }
+ 
+   if (is_win || is_mac || is_linux) {
+     sources += [

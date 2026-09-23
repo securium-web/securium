@@ -57,13 +57,6 @@ RequiredBaselineSettings: Dict[str, Dict[str, Any]] = {
         "requirement": "EXACT_VALUE",
         "stability": "PREFERRED",
     },
-    "enable_lens_desktop": {
-        "classification": "PRODUCT_CHOICE",
-        "expected": False,
-        "related_service_ids": [],
-        "requirement": "EXACT_VALUE",
-        "stability": "PREFERRED",
-    },
     "enable_rlz": {
         "classification": "EXPLICIT_DEFENSE",
         "expected": False,
