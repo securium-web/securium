@@ -72,10 +72,11 @@ and UI; their presence is not full product inclusion or proof of no traffic.
 
 ## Current execution status
 
-**GN PASS; Foundation 1B build-only PASS. COMPILE not yet started.**
+**GN PASS; Foundation 1B build-only PASS. COMPILE started, INCOMPLETE.**
 Fresh output: `Qualification/Compose-001/integration/out/SecuriumWinX64`.
 `build-policy.json` records the successful GN command and ten matching values;
-`foundation-1b.json` completes the generated-header/target/source review. The
+`foundation-1b-final.json` completes the generated-header/target/source review
+and binds the canonical patch bytes to the integrated series. The
 six requested header actions passed (seven actions including module-map
 generation), without compiling Chromium. Credential defines are absent and
 process/current-user/machine environments contain no nonempty overrides.
@@ -110,3 +111,37 @@ MSVC `14.51.36231`, ATL/MFC present, Windows SDK `10.0.28000.2526`
 All 105 offline static tests and repository validation passed on the worker.
 Canonical candidate/qualified/released state is unchanged. No TEST, RUNTIME,
 network, security or release qualification follows from these results.
+
+## First compile execution
+
+Started **2026-09-23 09:29:09 UTC** from Securium commit
+`d4c0f76dc18656c6c866d8c0d605445247963e1c` (repository tree
+`d0b8ac90ceb80962179b6769ef372365f5211b2b`). That exact snapshot passed all
+105 offline tests and repository/build/network validators before launch.
+The normal push to `origin/main` succeeded and
+[hosted static CI passed](https://github.com/securium-web/securium/actions/runs/35843226591).
+
+Command from the disposable integration root:
+
+```text
+D:\Sandbox\Codex\Securium\Tools\depot_tools\autoninja.bat -C out/SecuriumWinX64 -j 4 chrome
+```
+
+Autoninja resolved this to Siso offline execution with `-local_jobs=4`.
+Chromium's bundled Clang is the C/C++ compiler: `24.0.0git`, LLVM revision
+`9fca3cf47d011a0af295d4252d70f16f8693d6a2`; VS/MSVC and the SDK supply the
+Windows toolchain environment/headers/libraries. Actual Clang module and Rust
+compilation processes were observed. No completed Chromium build is claimed.
+
+Worker `Qualification/Compose-001/compile.json` records source commit, patch
+digests, manifest/effective settings, toolchain, command, PID, timestamps and
+eventual exit status/duration. `compile.log` retains compiler/linker output.
+The current result is **INCOMPLETE**; elapsed time is not completion evidence.
+No compile failure or source correction had occurred at this recorded point.
+Follow-up documentation commits do not change the recorded build input commit.
+
+Next task: collect the running build's result and inspect any compiler/linker
+failure before changing source. Preserve this incremental output. Narrow
+Compose/build-policy corrections must rerun the affected gates; unrelated
+production, privacy or test-boundary changes require review. Do not advance
+TEST, runtime, secure-profile, packaging or release work from this run.
